@@ -1,6 +1,6 @@
 # Stock Trading Simulator
 
-Real-Time Stock Trading Simulator — MCA Final Year Project.
+Real-Time Stock Trading Simulator — MCA Project.
 
 Practice buying and selling stocks with virtual money. No real money involved.
 
