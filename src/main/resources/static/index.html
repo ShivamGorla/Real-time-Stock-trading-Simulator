@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockSim — Virtual Trading Simulator</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- Animated background orbs -->
+<div class="bg-atmosphere">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+</div>
+
+<nav class="navbar">
+    <div class="container nav-content">
+        <a href="/" class="logo">
+            <span class="logo-icon">◆</span> StockSim
+        </a>
+        <button class="nav-toggle" aria-label="Toggle navigation">
+            <span class="hamburger"></span>
+        </button>
+        <ul class="nav-links">
+            <li><a href="#features">Features</a></li>
+            <li><a href="#market">Market</a></li>
+            <li><a href="#portfolio">Portfolio</a></li>
+            <li><a href="/login.html" class="btn btn-nav">Sign In</a></li>
+        </ul>
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="container">
+        <div class="hero-badge">
+            <span class="badge-dot"></span>
+            Virtual Trading — No Real Money
+        </div>
+        <h1 class="hero-title">
+            Master the Market.<br>
+            <span class="text-gradient">Risk Nothing.</span>
+        </h1>
+        <p class="hero-subtitle">
+            Practice buying and selling stocks with virtual funds.
+            Build your strategy, track performance, and learn — all without financial risk.
+        </p>
+        <div class="hero-actions">
+            <a href="#market" class="btn btn-primary">
+                <span>Explore Market</span>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a href="#portfolio" class="btn btn-glass">View Portfolio</a>
+        </div>
+
+        <!-- Hero stats cards -->
+        <div class="hero-stats">
+            <div class="stat-card glass-card">
+                <span class="stat-label">Virtual Balance</span>
+                <span class="stat-value">&#36;100,000</span>
+            </div>
+            <div class="stat-card glass-card">
+                <span class="stat-label">Stocks Available</span>
+                <span class="stat-value">Coming Soon</span>
+            </div>
+            <div class="stat-card glass-card">
+                <span class="stat-label">Server Status</span>
+                <span class="stat-value" id="server-status">Checking…</span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main>
+    <section id="features" class="section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Platform</span>
+                <h2 class="section-title">Everything you need to learn trading</h2>
+                <p class="section-desc">A complete simulation environment designed for learning, not gambling.</p>
+            </div>
+            <div class="feature-grid">
+                <div class="feature-card glass-card">
+                    <div class="feature-icon-wrap">
+                        <div class="feature-icon">💰</div>
+                    </div>
+                    <h3>Virtual Wallet</h3>
+                    <p>Start with virtual funds. Manage your balance, deposits, and withdrawals in a risk-free environment.</p>
+                </div>
+                <div class="feature-card glass-card">
+                    <div class="feature-icon-wrap">
+                        <div class="feature-icon">📊</div>
+                    </div>
+                    <h3>Live Price Simulation</h3>
+                    <p>Track simulated market prices in real time. Study patterns and make informed decisions.</p>
+                </div>
+                <div class="feature-card glass-card">
+                    <div class="feature-icon-wrap">
+                        <div class="feature-icon">📈</div>
+                    </div>
+                    <h3>Performance Tracking</h3>
+                    <p>Monitor profit and loss, review transaction history, and measure your growth over time.</p>
+                </div>
+                <div class="feature-card glass-card">
+                    <div class="feature-icon-wrap">
+                        <div class="feature-icon">🤖</div>
+                    </div>
+                    <h3>AI Market Analysis</h3>
+                    <p>Get AI-powered insights and market sentiment analysis to sharpen your strategy.</p>
+                </div>
+                <div class="feature-card glass-card">
+                    <div class="feature-icon-wrap">
+                        <div class="feature-icon">🔔</div>
+                    </div>
+                    <h3>Smart Notifications</h3>
+                    <p>Set price alerts and get notified of market movements that matter to your portfolio.</p>
+                </div>
+                <div class="feature-card glass-card">
+                    <div class="feature-icon-wrap">
+                        <div class="feature-icon">🛡️</div>
+                    </div>
+                    <h3>Zero Risk</h3>
+                    <p>No real money. No real losses. Pure learning. Perfect for students and beginners.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="market" class="section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Market</span>
+                <h2 class="section-title">Market Overview</h2>
+                <p class="section-desc">Live simulated market data will appear here once trading features are active.</p>
+            </div>
+            <div class="placeholder-card glass-card">
+                <div class="placeholder-icon">📡</div>
+                <h3>Market Data Coming Soon</h3>
+                <p>Simulated stock prices, charts, and market indicators will be available in a future update.</p>
+                <div class="placeholder-pulse"></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="portfolio" class="section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Portfolio</span>
+                <h2 class="section-title">Your Portfolio</h2>
+                <p class="section-desc">Track your holdings, monitor performance, and review your trading history.</p>
+            </div>
+            <div class="placeholder-card glass-card">
+                <div class="placeholder-icon">📂</div>
+                <h3>Portfolio Dashboard Coming Soon</h3>
+                <p>Sign in to access your personalized portfolio dashboard, trade history, and performance analytics.</p>
+                <div class="placeholder-pulse"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section cta-section">
+        <div class="container">
+            <div class="cta-card glass-card">
+                <h2>Ready to start trading?</h2>
+                <p>Create your free account and begin your trading journey with &#36;100,000 in virtual funds.</p>
+                <a href="/register.html" class="btn btn-primary btn-lg">
+                    <span>Get Started Free</span>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </a>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="footer">
+    <div class="container footer-content">
+        <div class="footer-brand">
+            <span class="logo"><span class="logo-icon">◆</span> StockSim</span>
+            <p>Virtual stock trading simulator for learning and practice.</p>
+        </div>
+        <div class="footer-meta">
+            <p>&copy; 2026 Stock Trading Simulator</p>
+            <p class="footer-note">This is a simulation. No real money is involved.</p>
+        </div>
+    </div>
+</footer>
+
+<script src="/js/app.js"></script>
+</body>
+</html>

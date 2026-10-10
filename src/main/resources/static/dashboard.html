@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — StockSim</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="bg-atmosphere"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
+    
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="/" class="logo"><span class="logo-icon">◆</span> StockSim</a>
+            <ul class="nav-links">
+                <li><a href="#" class="active">Dashboard</a></li>
+                <li><a href="#">Market</a></li>
+                <li><a href="#">Portfolio</a></li>
+                <li><a href="#" id="logout-btn" class="btn btn-nav">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="dashboard-main" id="dashboard-profile">
+        <div class="container">
+            <header class="dashboard-header">
+                <h1>Welcome, <span id="user-name" class="text-gradient">Loading...</span></h1>
+                <p class="section-desc">Virtual Trading Simulator Environment</p>
+            </header>
+
+            <div class="dashboard-grid">
+                <div class="glass-card stat-card">
+                    <span class="stat-label">Virtual Balance</span>
+                    <span class="stat-value text-gradient" id="user-balance">₹0</span>
+                </div>
+                <div class="glass-card stat-card">
+                    <span class="stat-label">Total Holdings</span>
+                    <span class="stat-value">₹0</span>
+                </div>
+                <div class="glass-card stat-card">
+                    <span class="stat-label">Profit / Loss</span>
+                    <span class="stat-value" style="color:var(--accent-teal)">+₹0 (0%)</span>
+                </div>
+            </div>
+
+            <div class="glass-card placeholder-card" style="margin-top: 2rem;">
+                <h3>Market & Trading Features</h3>
+                <p>Buying and selling functionalities will be unlocked in the next phase.</p>
+                <div class="placeholder-pulse"></div>
+            </div>
+        </div>
+    </main>
+    <script src="/js/auth.js"></script>
+</body>
+</html>
