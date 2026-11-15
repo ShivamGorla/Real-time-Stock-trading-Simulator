@@ -165,4 +165,153 @@ class TradeControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("Trade with id " + trade.getId() + " not found"));
     }
+
+    @Test
+    @WithMockUser(username = "testuser1")
+    void getUserTrades_PageSizeCappedAt100() throws Exception {
+        for (int i = 1; i <= 105; i++) {
+            Order order = orderRepository.save(new Order(
+                    UUID.randomUUID().toString(), user1, stock, OrderSide.BUY, i,
+                    new BigDecimal("1500.00"), BigDecimal.valueOf(1500L * i), Instant.now()
+            ));
+            order.transitionTo(OrderStatus.EXECUTED, new BigDecimal("1500.00"), Instant.now());
+            orderRepository.save(order);
+
+            tradeRepository.save(new Trade(
+                    order, user1, stock, OrderSide.BUY, i,
+                    new BigDecimal("1500.00"), BigDecimal.valueOf(1500L * i), Instant.now()
+            ));
+        }
+
+        mockMvc.perform(get("/api/trades?page=0&size=150"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size").value(100))
+                .andExpect(jsonPath("$.content", hasSize(100)))
+                .andExpect(jsonPath("$.totalElements").value(105));
+    }
+
+    @Test
+    @WithMockUser(username = "testuser1")
+    void getUserTrades_NegativePageAndInvalidSize_HandledSafely() throws Exception {
+        Order order = orderRepository.save(new Order(
+                UUID.randomUUID().toString(), user1, stock, OrderSide.BUY, 5,
+                new BigDecimal("1500.00"), new BigDecimal("7500.00"), Instant.now()
+        ));
+        order.transitionTo(OrderStatus.EXECUTED, new BigDecimal("1500.00"), Instant.now());
+        orderRepository.save(order);
+
+        tradeRepository.save(new Trade(
+                order, user1, stock, OrderSide.BUY, 5,
+                new BigDecimal("1500.00"), new BigDecimal("7500.00"), Instant.now()
+        ));
+
+        mockMvc.perform(get("/api/trades?page=-1&size=-10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.number").value(0))
+                .andExpect(jsonPath("$.size").value(20))
+                .andExpect(jsonPath("$.content", hasSize(1)));
+    }
+
+    @Test
+    @WithMockUser(username = "testuser1")
+    void getUserTrades_UnsafeSortField_FallsBackToExecutedAtDescSafely() throws Exception {
+        Order order1 = orderRepository.save(new Order(
+                UUID.randomUUID().toString(), user1, stock, OrderSide.BUY, 10,
+                new BigDecimal("1500.00"), new BigDecimal("15000.00"), Instant.now().minusSeconds(100)
+        ));
+        order1.transitionTo(OrderStatus.EXECUTED, new BigDecimal("1500.00"), Instant.now().minusSeconds(100));
+        orderRepository.save(order1);
+
+        tradeRepository.save(new Trade(
+                order1, user1, stock, OrderSide.BUY, 10,
+                new BigDecimal("1500.00"), new BigDecimal("15000.00"), Instant.now().minusSeconds(100)
+        ));
+
+        Order order2 = orderRepository.save(new Order(
+                UUID.randomUUID().toString(), user1, stock, OrderSide.BUY, 20,
+                new BigDecimal("1500.00"), new BigDecimal("30000.00"), Instant.now()
+        ));
+        order2.transitionTo(OrderStatus.EXECUTED, new BigDecimal("1500.00"), Instant.now());
+        orderRepository.save(order2);
+
+        tradeRepository.save(new Trade(
+                order2, user1, stock, OrderSide.BUY, 20,
+                new BigDecimal("1500.00"), new BigDecimal("30000.00"), Instant.now()
+        ));
+
+        mockMvc.perform(get("/api/trades?sort=maliciousProperty,asc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(2)))
+                // Falls back to executedAt DESC, so order2 (more recent) comes first
+                .andExpect(jsonPath("$.content[0].quantity").value(20))
+                .andExpect(jsonPath("$.content[1].quantity").value(10));
+    }
+
+    @Test
+    @WithMockUser(username = "testuser1")
+    void getUserTrades_ValidCustomSort_OrdersCorrectly() throws Exception {
+        Order order1 = orderRepository.save(new Order(
+                UUID.randomUUID().toString(), user1, stock, OrderSide.BUY, 50,
+                new BigDecimal("1500.00"), new BigDecimal("75000.00"), Instant.now().minusSeconds(50)
+        ));
+        order1.transitionTo(OrderStatus.EXECUTED, new BigDecimal("1500.00"), Instant.now().minusSeconds(50));
+        orderRepository.save(order1);
+
+        tradeRepository.save(new Trade(
+                order1, user1, stock, OrderSide.BUY, 50,
+                new BigDecimal("1500.00"), new BigDecimal("75000.00"), Instant.now().minusSeconds(50)
+        ));
+
+        Order order2 = orderRepository.save(new Order(
+                UUID.randomUUID().toString(), user1, stock, OrderSide.BUY, 10,
+                new BigDecimal("1500.00"), new BigDecimal("15000.00"), Instant.now()
+        ));
+        order2.transitionTo(OrderStatus.EXECUTED, new BigDecimal("1500.00"), Instant.now());
+        orderRepository.save(order2);
+
+        tradeRepository.save(new Trade(
+                order2, user1, stock, OrderSide.BUY, 10,
+                new BigDecimal("1500.00"), new BigDecimal("15000.00"), Instant.now()
+        ));
+
+        mockMvc.perform(get("/api/trades?sort=quantity,asc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(2)))
+                // Sort by quantity ASC: order2 (quantity 10) first, then order1 (quantity 50)
+                .andExpect(jsonPath("$.content[0].quantity").value(10))
+                .andExpect(jsonPath("$.content[1].quantity").value(50));
+    }
+
+    @Test
+    @WithMockUser(username = "testuser1")
+    void getUserTrades_UserIsolationPreserved() throws Exception {
+        Order order1 = orderRepository.save(new Order(
+                UUID.randomUUID().toString(), user1, stock, OrderSide.BUY, 10,
+                new BigDecimal("1500.00"), new BigDecimal("15000.00"), Instant.now()
+        ));
+        order1.transitionTo(OrderStatus.EXECUTED, new BigDecimal("1500.00"), Instant.now());
+        orderRepository.save(order1);
+
+        tradeRepository.save(new Trade(
+                order1, user1, stock, OrderSide.BUY, 10,
+                new BigDecimal("1500.00"), new BigDecimal("15000.00"), Instant.now()
+        ));
+
+        Order order2 = orderRepository.save(new Order(
+                UUID.randomUUID().toString(), user2, stock, OrderSide.BUY, 20,
+                new BigDecimal("1500.00"), new BigDecimal("30000.00"), Instant.now()
+        ));
+        order2.transitionTo(OrderStatus.EXECUTED, new BigDecimal("1500.00"), Instant.now());
+        orderRepository.save(order2);
+
+        tradeRepository.save(new Trade(
+                order2, user2, stock, OrderSide.BUY, 20,
+                new BigDecimal("1500.00"), new BigDecimal("30000.00"), Instant.now()
+        ));
+
+        mockMvc.perform(get("/api/trades"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.content[0].quantity").value(10));
+    }
 }

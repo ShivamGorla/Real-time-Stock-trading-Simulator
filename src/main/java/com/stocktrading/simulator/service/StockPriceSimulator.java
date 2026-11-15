@@ -64,7 +64,14 @@ public class StockPriceSimulator {
         }
 
         if (maxChangeFactor <= 0.0 || Double.isNaN(maxChangeFactor) || Double.isInfinite(maxChangeFactor)) {
-            return currentPrice.compareTo(MIN_PRICE_FLOOR) < 0 ? MIN_PRICE_FLOOR : currentPrice;
+            BigDecimal rounded = currentPrice.setScale(2, RoundingMode.HALF_UP);
+            if (rounded.compareTo(MIN_PRICE_FLOOR) < 0) {
+                return MIN_PRICE_FLOOR;
+            }
+            if (rounded.compareTo(MAX_PRICE_CEILING) > 0) {
+                return MAX_PRICE_CEILING;
+            }
+            return rounded;
         }
 
         // Generate percentage change between -maxChangeFactor and +maxChangeFactor

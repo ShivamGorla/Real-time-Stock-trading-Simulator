@@ -176,4 +176,88 @@ class StockServiceTest {
         assertTrue(nextPrice.compareTo(new BigDecimal("9999999999.99")) <= 0,
                 "Simulated price must not exceed maximum decimal precision ceiling");
     }
+
+    @Test
+    void stockPriceSimulator_CalculateNextPrice_OverCeilingAndInvalidChangeFactor_ClampsToCeiling() {
+        BigDecimal overCeiling = new BigDecimal("12000000000.00");
+
+        assertEquals(new BigDecimal("9999999999.99"),
+                stockPriceSimulator.calculateNextPrice(overCeiling, 0.0));
+        assertEquals(new BigDecimal("9999999999.99"),
+                stockPriceSimulator.calculateNextPrice(overCeiling, -0.02));
+        assertEquals(new BigDecimal("9999999999.99"),
+                stockPriceSimulator.calculateNextPrice(overCeiling, Double.NaN));
+        assertEquals(new BigDecimal("9999999999.99"),
+                stockPriceSimulator.calculateNextPrice(overCeiling, Double.POSITIVE_INFINITY));
+    }
+
+    @Test
+    void stockPriceSimulator_CalculateNextPrice_SubFloorAndInvalidChangeFactor_ClampsToFloor() {
+        BigDecimal subFloor = new BigDecimal("0.50");
+
+        assertEquals(new BigDecimal("1.00"),
+                stockPriceSimulator.calculateNextPrice(subFloor, 0.0));
+        assertEquals(new BigDecimal("1.00"),
+                stockPriceSimulator.calculateNextPrice(subFloor, -0.05));
+    }
+
+    @Test
+    void stockPriceSimulator_CalculateNextPrice_MultiDecimalAndInvalidChangeFactor_RoundsToTwoDecimals() {
+        BigDecimal multiDecimal = new BigDecimal("100.126");
+
+        assertEquals(new BigDecimal("100.13"),
+                stockPriceSimulator.calculateNextPrice(multiDecimal, 0.0));
+    }
+
+    @Test
+    void createStockIfAbsent_RoundingAndBoundaryValidation() {
+        // 0.004 rounds to 0.00 -> rejected before save
+        assertThrows(IllegalArgumentException.class, () ->
+                stockService.createStockIfAbsent("VAL1", "Validation 1", new BigDecimal("0.004")));
+        assertEquals(0, stockRepository.count());
+        assertEquals(0, historyRepository.count());
+
+        // 0.005 rounds to 0.01 -> accepted
+        Stock stockValid = stockService.createStockIfAbsent("VAL2", "Validation 2", new BigDecimal("0.005"));
+        assertEquals(new BigDecimal("0.01"), stockValid.getCurrentPrice());
+        assertEquals(1, stockRepository.count());
+        assertEquals(1, historyRepository.count());
+
+        // Negative input -> rejected
+        assertThrows(IllegalArgumentException.class, () ->
+                stockService.createStockIfAbsent("VAL3", "Validation 3", new BigDecimal("-10.00")));
+
+        // Null input -> rejected
+        assertThrows(IllegalArgumentException.class, () ->
+                stockService.createStockIfAbsent("VAL4", "Validation 4", null));
+
+        // Exceeding DECIMAL(12,2) limit -> rejected
+        assertThrows(IllegalArgumentException.class, () ->
+                stockService.createStockIfAbsent("VAL5", "Validation 5", new BigDecimal("10000000000.00")));
+    }
+
+    @Test
+    void updateStockPrice_RoundingAndBoundaryValidation() {
+        Stock stock = stockService.createStockIfAbsent("UPD1", "Update Co", new BigDecimal("100.00"));
+
+        // 0.004 rounds to 0.00 -> rejected
+        assertThrows(IllegalArgumentException.class, () ->
+                stockService.updateStockPrice("UPD1", new BigDecimal("0.004"), Instant.now()));
+
+        // 0.005 rounds to 0.01 -> accepted
+        Stock updated = stockService.updateStockPrice("UPD1", new BigDecimal("0.005"), Instant.now());
+        assertEquals(new BigDecimal("0.01"), updated.getCurrentPrice());
+
+        // Negative input -> rejected
+        assertThrows(IllegalArgumentException.class, () ->
+                stockService.updateStockPrice("UPD1", new BigDecimal("-5.00"), Instant.now()));
+
+        // Null input -> rejected
+        assertThrows(IllegalArgumentException.class, () ->
+                stockService.updateStockPrice("UPD1", null, Instant.now()));
+
+        // Exceeding DECIMAL(12,2) limit -> rejected
+        assertThrows(IllegalArgumentException.class, () ->
+                stockService.updateStockPrice("UPD1", new BigDecimal("10000000000.00"), Instant.now()));
+    }
 }

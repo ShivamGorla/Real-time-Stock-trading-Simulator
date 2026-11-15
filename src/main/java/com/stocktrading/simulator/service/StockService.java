@@ -24,6 +24,8 @@ public class StockService {
 
     private static final int DEFAULT_HISTORY_LIMIT = 50;
     private static final int MAX_HISTORY_LIMIT = 200;
+    private static final BigDecimal MIN_PRICE = new BigDecimal("0.01");
+    private static final BigDecimal MAX_PRICE = new BigDecimal("9999999999.99");
 
     private final StockRepository stockRepository;
     private final StockPriceHistoryRepository stockPriceHistoryRepository;
@@ -88,10 +90,17 @@ public class StockService {
             throw new IllegalArgumentException("Initial stock price must be positive");
         }
 
+        BigDecimal formattedPrice = initialPrice.setScale(2, RoundingMode.HALF_UP);
+        if (formattedPrice.compareTo(MIN_PRICE) < 0) {
+            throw new IllegalArgumentException("Initial stock price must be strictly positive after rounding");
+        }
+        if (formattedPrice.compareTo(MAX_PRICE) > 0) {
+            throw new IllegalArgumentException("Initial stock price exceeds maximum allowed limit of " + MAX_PRICE);
+        }
+
         String normalizedSymbol = symbol.trim().toUpperCase();
         return stockRepository.findBySymbolIgnoreCase(normalizedSymbol).orElseGet(() -> {
             Instant nowUtc = Instant.now();
-            BigDecimal formattedPrice = initialPrice.setScale(2, RoundingMode.HALF_UP);
             Stock newStock = new Stock(normalizedSymbol, companyName.trim(), formattedPrice, nowUtc);
             Stock savedStock = stockRepository.save(newStock);
             stockPriceHistoryRepository.save(new StockPriceHistory(savedStock, formattedPrice, nowUtc));
@@ -104,8 +113,14 @@ public class StockService {
         if (newPrice == null || newPrice.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Stock price must be positive");
         }
-        Stock stock = findStockOrThrow(symbol);
         BigDecimal roundedPrice = newPrice.setScale(2, RoundingMode.HALF_UP);
+        if (roundedPrice.compareTo(MIN_PRICE) < 0) {
+            throw new IllegalArgumentException("Stock price must be strictly positive after rounding");
+        }
+        if (roundedPrice.compareTo(MAX_PRICE) > 0) {
+            throw new IllegalArgumentException("Stock price exceeds maximum allowed limit of " + MAX_PRICE);
+        }
+        Stock stock = findStockOrThrow(symbol);
         Instant timestamp = updateTime != null ? updateTime : Instant.now();
 
         stock.updatePrice(roundedPrice, timestamp);

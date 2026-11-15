@@ -13,6 +13,8 @@ import java.util.Optional;
 @Repository
 public interface TradeRepository extends JpaRepository<Trade, Long> {
 
+    Page<Trade> findByUser(User user, Pageable pageable);
+
     Page<Trade> findByUserOrderByExecutedAtDesc(User user, Pageable pageable);
 
     Optional<Trade> findByIdAndUser(Long id, User user);
