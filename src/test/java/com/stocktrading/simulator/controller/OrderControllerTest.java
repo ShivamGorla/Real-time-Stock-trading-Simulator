@@ -2,26 +2,34 @@ package com.stocktrading.simulator.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stocktrading.simulator.dto.OrderRequest;
+import com.stocktrading.simulator.exception.GlobalExceptionHandler;
 import com.stocktrading.simulator.model.User;
 import com.stocktrading.simulator.repository.OrderRepository;
 import com.stocktrading.simulator.repository.StockPriceHistoryRepository;
 import com.stocktrading.simulator.repository.StockRepository;
 import com.stocktrading.simulator.repository.TradeRepository;
 import com.stocktrading.simulator.repository.UserRepository;
+import com.stocktrading.simulator.service.OrderService;
 import com.stocktrading.simulator.service.StockService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -152,6 +160,29 @@ class OrderControllerTest {
                 .content(objectMapper.writeValueAsString(request2)))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.error", containsString("already exists")));
+    }
+
+    @Test
+    void placeOrder_UnrelatedDataIntegrityViolation_Returns500WithoutSqlDetails() throws Exception {
+        OrderService mockService = mock(OrderService.class);
+        when(mockService.createBuyOrder(any(), any())).thenThrow(
+                new DataIntegrityViolationException("could not execute statement [Referential integrity constraint violation: \"FK_ORDERS_USER\"]: SELECT ...")
+        );
+
+        MockMvc standaloneMockMvc = MockMvcBuilders.standaloneSetup(new OrderController(mockService))
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .build();
+
+        OrderRequest request = new OrderRequest(UUID.randomUUID().toString(), "INFY", 5);
+
+        standaloneMockMvc.perform(post("/api/orders/buy")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                        .principal(new TestingAuthenticationToken("testuser", "pass", "ROLE_USER")))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.error").value("Database integrity error occurred"))
+                .andExpect(jsonPath("$.error", not(containsString("FK_ORDERS_USER"))))
+                .andExpect(jsonPath("$.error", not(containsString("SELECT"))));
     }
 
     @Test

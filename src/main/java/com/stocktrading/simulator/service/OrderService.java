@@ -35,7 +35,7 @@ public class OrderService {
     private final TransactionTemplate transactionTemplate;
 
     @Value("${stock.order.max-quantity:100000}")
-    private int maxQuantity;
+    private int maxQuantity = 100000;
 
     @Value("${stock.order.auto-execute:false}")
     private boolean autoExecute;
@@ -127,8 +127,11 @@ public class OrderService {
             try {
                 return orderRepository.saveAndFlush(order);
             } catch (DataIntegrityViolationException ex) {
-                // Concurrent submission with the same clientOrderId caught by database unique constraint
-                throw new DuplicateOrderException("An order with clientOrderId '" + clientOrderId + "' was concurrently submitted");
+                if (isDuplicateClientOrderException(ex)) {
+                    // Concurrent submission with the same clientOrderId caught by database unique constraint
+                    throw new DuplicateOrderException("An order with clientOrderId '" + clientOrderId + "' was concurrently submitted");
+                }
+                throw ex;
             }
         });
 
@@ -168,5 +171,30 @@ public class OrderService {
 
     public boolean isAutoExecute() {
         return autoExecute;
+    }
+
+    private boolean isDuplicateClientOrderException(DataIntegrityViolationException ex) {
+        if (ex == null) {
+            return false;
+        }
+
+        Throwable current = ex;
+        while (current != null) {
+            if (current instanceof org.hibernate.exception.ConstraintViolationException cve) {
+                String constraintName = cve.getConstraintName();
+                if (constraintName != null && constraintName.toLowerCase().contains("uk_user_client_order_id")) {
+                    return true;
+                }
+            }
+
+            String message = current.getMessage();
+            if (message != null && message.toLowerCase().contains("uk_user_client_order_id")) {
+                return true;
+            }
+
+            current = current.getCause();
+        }
+
+        return false;
     }
 }

@@ -14,6 +14,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -21,12 +23,21 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 class OrderServiceTest {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private PlatformTransactionManager transactionManager;
+
+    @Autowired
+    private OrderExecutionService orderExecutionService;
 
     @Autowired
     private TradeRepository tradeRepository;
@@ -110,6 +121,84 @@ class OrderServiceTest {
 
         assertThrows(DuplicateOrderException.class, () ->
                 orderService.createBuyOrder("userone", request2));
+    }
+
+    @Test
+    void createOrder_ConcurrentDuplicateConstraintViolation_ThrowsDuplicateOrderException() {
+        OrderRepository mockOrderRepo = mock(OrderRepository.class);
+        when(mockOrderRepo.existsByUserAndClientOrderId(any(), any())).thenReturn(false);
+        when(mockOrderRepo.saveAndFlush(any())).thenThrow(new DataIntegrityViolationException(
+                "could not execute statement [Duplicate entry '1-uuid' for key 'orders.uk_user_client_order_id']"
+        ));
+
+        OrderService customOrderService = new OrderService(
+                mockOrderRepo,
+                userRepository,
+                stockRepository,
+                orderExecutionService,
+                transactionManager
+        );
+
+        String clientOrderId = UUID.randomUUID().toString();
+        OrderRequest request = new OrderRequest(clientOrderId, "RELIANCE", 10);
+
+        DuplicateOrderException ex = assertThrows(DuplicateOrderException.class, () ->
+                customOrderService.createBuyOrder("userone", request)
+        );
+        assertTrue(ex.getMessage().contains("concurrently submitted"));
+    }
+
+    @Test
+    void createOrder_UnrelatedDatabaseConstraintViolation_RethrowsDataIntegrityViolationException() {
+        OrderRepository mockOrderRepo = mock(OrderRepository.class);
+        when(mockOrderRepo.existsByUserAndClientOrderId(any(), any())).thenReturn(false);
+        when(mockOrderRepo.saveAndFlush(any())).thenThrow(new DataIntegrityViolationException(
+                "could not execute statement [Referential integrity constraint violation: \"FK_ORDERS_USER\"]"
+        ));
+
+        OrderService customOrderService = new OrderService(
+                mockOrderRepo,
+                userRepository,
+                stockRepository,
+                orderExecutionService,
+                transactionManager
+        );
+
+        String clientOrderId = UUID.randomUUID().toString();
+        OrderRequest request = new OrderRequest(clientOrderId, "RELIANCE", 10);
+
+        // Must rethrow DataIntegrityViolationException, NOT DuplicateOrderException
+        assertThrows(DataIntegrityViolationException.class, () ->
+                customOrderService.createBuyOrder("userone", request)
+        );
+    }
+
+    @Test
+    void createOrder_UnrelatedUniqueConstraintViolation_RethrowsDataIntegrityViolationException() {
+        OrderRepository mockOrderRepo = mock(OrderRepository.class);
+        when(mockOrderRepo.existsByUserAndClientOrderId(any(), any())).thenReturn(false);
+        // Unrelated unique constraint (e.g. users.uk_users_username or trades.uk_trades_order_id)
+        when(mockOrderRepo.saveAndFlush(any())).thenThrow(new DataIntegrityViolationException(
+                "could not execute statement [Duplicate entry '1' for key 'trades.uk_trades_order_id']"
+        ));
+
+        OrderService customOrderService = new OrderService(
+                mockOrderRepo,
+                userRepository,
+                stockRepository,
+                orderExecutionService,
+                transactionManager
+        );
+
+        String clientOrderId = UUID.randomUUID().toString();
+        OrderRequest request = new OrderRequest(clientOrderId, "RELIANCE", 10);
+
+        // Unrelated unique constraint must rethrow DataIntegrityViolationException, NOT DuplicateOrderException
+        assertThrows(DataIntegrityViolationException.class, () ->
+                customOrderService.createBuyOrder("userone", request)
+        );
+        assertEquals(0, orderRepository.count());
+        assertEquals(0, tradeRepository.count());
     }
 
     @Test
