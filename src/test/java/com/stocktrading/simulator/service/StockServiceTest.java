@@ -7,6 +7,7 @@ import com.stocktrading.simulator.model.Stock;
 import com.stocktrading.simulator.repository.OrderRepository;
 import com.stocktrading.simulator.repository.StockPriceHistoryRepository;
 import com.stocktrading.simulator.repository.StockRepository;
+import com.stocktrading.simulator.repository.TradeRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ class StockServiceTest {
     private StockPriceHistoryRepository historyRepository;
 
     @Autowired
+    private TradeRepository tradeRepository;
+
+    @Autowired
     private OrderRepository orderRepository;
 
     @Autowired
@@ -38,6 +42,7 @@ class StockServiceTest {
 
     @BeforeEach
     void setup() {
+        tradeRepository.deleteAll();
         orderRepository.deleteAll();
         historyRepository.deleteAll();
         stockRepository.deleteAll();
