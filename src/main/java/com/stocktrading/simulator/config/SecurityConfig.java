@@ -16,7 +16,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        // Expose CSRF token in a cookie so vanilla JS can read it
+        // Expose CSRF token in a cookie so client JS can read it
         CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
         requestHandler.setCsrfRequestAttributeName(null);
 
@@ -27,6 +27,7 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/user/**").authenticated()
+                .requestMatchers("/api/stocks/**").permitAll()
                 .anyRequest().permitAll() // Allow static resources, health, and auth endpoints
             )
             .exceptionHandling(exc -> exc
