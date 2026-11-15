@@ -5,6 +5,13 @@ import com.stocktrading.simulator.dto.OrderResponse;
 public interface OrderExecutionService {
 
     /**
+     * Checks whether concrete settlement adapters (WalletPort and HoldingsPort) are both available.
+     *
+     * @return true if both wallet and holdings adapters are present in the application context
+     */
+    boolean isSettlementAvailable();
+
+    /**
      * Executes a pending order in a single database transaction after verifying and settling
      * funds and shares via the configured WalletPort and HoldingsPort.
      *

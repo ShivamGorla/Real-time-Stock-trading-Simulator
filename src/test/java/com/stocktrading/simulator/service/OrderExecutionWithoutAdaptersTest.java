@@ -79,4 +79,23 @@ class OrderExecutionWithoutAdaptersTest {
         // Verify no Trade record is created
         assertEquals(0, tradeRepository.count());
     }
+
+    @Test
+    void orderCreation_WhenAdaptersMissing_CreatesValidPendingOrderWithoutPretendingExecuted() {
+        assertFalse(orderExecutionService.isSettlementAvailable());
+
+        OrderResponse createdOrder = orderService.createBuyOrder(
+                "testuser",
+                new OrderRequest(UUID.randomUUID().toString(), "INFY", 5)
+        );
+
+        // Preserves existing behavior: created as PENDING without pretending it executed
+        assertEquals(OrderStatus.PENDING, createdOrder.getStatus());
+        assertNull(createdOrder.getExecutionPrice());
+        assertNull(createdOrder.getExecutedAt());
+        assertEquals(new BigDecimal("1500.00"), createdOrder.getQuotedPrice());
+
+        // Zero trades
+        assertEquals(0, tradeRepository.count());
+    }
 }

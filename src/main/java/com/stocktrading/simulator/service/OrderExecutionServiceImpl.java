@@ -41,7 +41,12 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean isSettlementAvailable() {
+        return walletPort.isPresent() && holdingsPort.isPresent();
+    }
+
+    @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public OrderResponse executeOrder(Long orderId, String username) {
         if (orderId == null || orderId <= 0) {
             throw new IllegalArgumentException("Order ID must be positive");
