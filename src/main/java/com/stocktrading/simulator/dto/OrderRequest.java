@@ -3,11 +3,14 @@ package com.stocktrading.simulator.dto;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public class OrderRequest {
 
     @NotBlank(message = "Client order ID is required")
+    @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+             message = "Client order ID must be a valid UUID")
     @Size(max = 64, message = "Client order ID must not exceed 64 characters")
     private String clientOrderId;
 

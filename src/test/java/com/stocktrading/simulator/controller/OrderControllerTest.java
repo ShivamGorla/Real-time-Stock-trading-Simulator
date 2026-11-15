@@ -200,4 +200,29 @@ class OrderControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error", containsString("not found")));
     }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    void placeOrder_InvalidClientOrderIdFormat_Returns400BadRequest() throws Exception {
+        OrderRequest request = new OrderRequest("invalid-non-uuid-string", "INFY", 5);
+
+        mockMvc.perform(post("/api/orders/buy")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.clientOrderId", containsString("valid UUID")));
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    void placeOrder_WithoutCsrf_Returns403Forbidden() throws Exception {
+        OrderRequest request = new OrderRequest(UUID.randomUUID().toString(), "INFY", 5);
+
+        // POST without .with(csrf()) must fail with 403 Forbidden
+        mockMvc.perform(post("/api/orders/buy")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isForbidden());
+    }
 }

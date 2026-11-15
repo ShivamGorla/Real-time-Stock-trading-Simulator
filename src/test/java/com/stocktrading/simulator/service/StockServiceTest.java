@@ -146,4 +146,34 @@ class StockServiceTest {
         assertTrue(nextPrice.compareTo(new BigDecimal("1.00")) >= 0,
                 "Simulated price must stay positive and at or above floor");
     }
+
+    @Test
+    void stockPriceSimulator_CalculateNextPrice_HandlesInvalidAndNegativeChangeFactors() {
+        BigDecimal initialPrice = new BigDecimal("100.00");
+
+        // Zero change factor
+        BigDecimal nextZero = stockPriceSimulator.calculateNextPrice(initialPrice, 0.0);
+        assertEquals(new BigDecimal("100.00"), nextZero);
+
+        // Negative change factor
+        BigDecimal nextNegative = stockPriceSimulator.calculateNextPrice(initialPrice, -0.05);
+        assertEquals(new BigDecimal("100.00"), nextNegative);
+
+        // NaN change factor
+        BigDecimal nextNaN = stockPriceSimulator.calculateNextPrice(initialPrice, Double.NaN);
+        assertEquals(new BigDecimal("100.00"), nextNaN);
+
+        // Infinite change factor
+        BigDecimal nextInf = stockPriceSimulator.calculateNextPrice(initialPrice, Double.POSITIVE_INFINITY);
+        assertEquals(new BigDecimal("100.00"), nextInf);
+    }
+
+    @Test
+    void stockPriceSimulator_CalculateNextPrice_NeverExceedsCeiling() {
+        BigDecimal nearCeiling = new BigDecimal("9999999999.00");
+        BigDecimal nextPrice = stockPriceSimulator.calculateNextPrice(nearCeiling, 0.50);
+
+        assertTrue(nextPrice.compareTo(new BigDecimal("9999999999.99")) <= 0,
+                "Simulated price must not exceed maximum decimal precision ceiling");
+    }
 }

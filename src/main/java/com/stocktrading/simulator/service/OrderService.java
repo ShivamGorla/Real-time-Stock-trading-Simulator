@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -76,6 +77,11 @@ public class OrderService {
             String clientOrderId = request.getClientOrderId() != null ? request.getClientOrderId().trim() : "";
             if (clientOrderId.isEmpty()) {
                 throw new IllegalArgumentException("Client order ID is required");
+            }
+            try {
+                UUID.fromString(clientOrderId);
+            } catch (IllegalArgumentException ex) {
+                throw new IllegalArgumentException("Client order ID must be a valid UUID: " + clientOrderId);
             }
 
             // Idempotency check: Reject duplicate submission for this user

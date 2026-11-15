@@ -18,6 +18,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -260,5 +261,63 @@ class OrderExecutionServiceTest {
         assertThrows(DataIntegrityViolationException.class, () -> {
             tradeRepository.saveAndFlush(trade2);
         });
+    }
+
+    @Test
+    void executeOrder_WhenPriceExceedsMaxPrecision_ThrowsIllegalStateException_BeforeWalletOrHoldingsMutations() {
+        OrderResponse created = orderService.createBuyOrder(
+                "userone",
+                new OrderRequest(UUID.randomUUID().toString(), "INFY", 5)
+        );
+
+        Stock mockStock = mock(Stock.class);
+        when(mockStock.getId()).thenReturn(testStock.getId());
+        when(mockStock.getSymbol()).thenReturn("INFY");
+        when(mockStock.getCurrentPrice()).thenReturn(new BigDecimal("10000000000.00")); // exceeds DECIMAL(12,2)
+
+        StockRepository mockStockRepo = mock(StockRepository.class);
+        when(mockStockRepo.findById(testStock.getId())).thenReturn(Optional.of(mockStock));
+
+        OrderExecutionService testExecutionService = new OrderExecutionServiceImpl(
+                orderRepository,
+                mockStockRepo,
+                tradeRepository,
+                Optional.of(walletPort),
+                Optional.of(holdingsPort)
+        );
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class, () ->
+                testExecutionService.executeOrder(created.getId(), "userone")
+        );
+        assertTrue(ex.getMessage().contains("exceeds maximum allowed limit"));
+
+        // Validation happened BEFORE mutations
+        verifyNoInteractions(walletPort, holdingsPort);
+
+        // Order quoted price and status remain unchanged
+        Order order = orderRepository.findById(created.getId()).orElseThrow();
+        assertEquals(OrderStatus.PENDING, order.getStatus());
+        assertEquals(new BigDecimal("1500.00"), order.getQuotedPrice());
+        assertNull(order.getExecutionPrice());
+    }
+
+    @Test
+    void executeOrder_WhenTotalAmountExceedsMaxPrecision_ThrowsIllegalStateException_BeforeMutations() {
+        OrderResponse created = orderService.createBuyOrder(
+                "userone",
+                new OrderRequest(UUID.randomUUID().toString(), "INFY", 50000)
+        );
+
+        // Set stock price so total execution amount exceeds DECIMAL(16,2) limit (99999999999999.99)
+        testStock.updatePrice(new BigDecimal("3000000000.00"), Instant.now());
+        stockRepository.save(testStock);
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class, () ->
+                orderExecutionService.executeOrder(created.getId(), "userone")
+        );
+        assertTrue(ex.getMessage().contains("exceeds maximum allowed monetary limit"));
+
+        verifyNoInteractions(walletPort, holdingsPort);
+        assertEquals(0, tradeRepository.count());
     }
 }

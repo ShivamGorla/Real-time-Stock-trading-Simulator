@@ -19,6 +19,7 @@ public class StockPriceSimulator {
 
     private static final Logger log = LoggerFactory.getLogger(StockPriceSimulator.class);
     private static final BigDecimal MIN_PRICE_FLOOR = new BigDecimal("1.00");
+    private static final BigDecimal MAX_PRICE_CEILING = new BigDecimal("9999999999.99");
 
     private final StockRepository stockRepository;
     private final StockService stockService;
@@ -62,13 +63,23 @@ public class StockPriceSimulator {
             return MIN_PRICE_FLOOR;
         }
 
+        if (maxChangeFactor <= 0.0 || Double.isNaN(maxChangeFactor) || Double.isInfinite(maxChangeFactor)) {
+            return currentPrice.compareTo(MIN_PRICE_FLOOR) < 0 ? MIN_PRICE_FLOOR : currentPrice;
+        }
+
         // Generate percentage change between -maxChangeFactor and +maxChangeFactor
         double randomFactor = ThreadLocalRandom.current().nextDouble(-maxChangeFactor, maxChangeFactor);
         BigDecimal deltaFactor = BigDecimal.valueOf(1.0 + randomFactor);
         BigDecimal calculated = currentPrice.multiply(deltaFactor).setScale(2, RoundingMode.HALF_UP);
 
-        // Ensure price never falls below minimum floor
-        return calculated.compareTo(MIN_PRICE_FLOOR) < 0 ? MIN_PRICE_FLOOR : calculated;
+        // Ensure price never falls below minimum floor or exceeds ceiling
+        if (calculated.compareTo(MIN_PRICE_FLOOR) < 0) {
+            return MIN_PRICE_FLOOR;
+        }
+        if (calculated.compareTo(MAX_PRICE_CEILING) > 0) {
+            return MAX_PRICE_CEILING;
+        }
+        return calculated;
     }
 
     public boolean isEnabled() {
