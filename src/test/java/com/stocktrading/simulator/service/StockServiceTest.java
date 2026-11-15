@@ -4,6 +4,7 @@ import com.stocktrading.simulator.dto.StockPriceHistoryResponse;
 import com.stocktrading.simulator.dto.StockResponse;
 import com.stocktrading.simulator.exception.ResourceNotFoundException;
 import com.stocktrading.simulator.model.Stock;
+import com.stocktrading.simulator.repository.OrderRepository;
 import com.stocktrading.simulator.repository.StockPriceHistoryRepository;
 import com.stocktrading.simulator.repository.StockRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.List;
 
@@ -31,10 +31,14 @@ class StockServiceTest {
     private StockPriceHistoryRepository historyRepository;
 
     @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
     private StockPriceSimulator stockPriceSimulator;
 
     @BeforeEach
     void setup() {
+        orderRepository.deleteAll();
         historyRepository.deleteAll();
         stockRepository.deleteAll();
     }

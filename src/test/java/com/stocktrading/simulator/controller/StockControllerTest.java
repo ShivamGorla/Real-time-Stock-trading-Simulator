@@ -1,6 +1,7 @@
 package com.stocktrading.simulator.controller;
 
 import com.stocktrading.simulator.model.Stock;
+import com.stocktrading.simulator.repository.OrderRepository;
 import com.stocktrading.simulator.repository.StockPriceHistoryRepository;
 import com.stocktrading.simulator.repository.StockRepository;
 import com.stocktrading.simulator.service.StockService;
@@ -26,6 +27,9 @@ class StockControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
     private StockRepository stockRepository;
 
     @Autowired
@@ -36,6 +40,7 @@ class StockControllerTest {
 
     @BeforeEach
     void setup() {
+        orderRepository.deleteAll();
         historyRepository.deleteAll();
         stockRepository.deleteAll();
 
