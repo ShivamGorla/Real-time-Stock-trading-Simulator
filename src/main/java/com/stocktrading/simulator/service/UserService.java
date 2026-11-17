@@ -3,6 +3,7 @@ package com.stocktrading.simulator.service;
 import com.stocktrading.simulator.dto.RegisterRequest;
 import com.stocktrading.simulator.dto.UserResponse;
 import com.stocktrading.simulator.model.User;
+import com.stocktrading.simulator.model.Wallet;
 import com.stocktrading.simulator.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,10 +19,12 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final WalletService walletService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, WalletService walletService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.walletService = walletService;
     }
 
     @Transactional
@@ -43,7 +46,10 @@ public class UserService implements UserDetailsService {
             passwordEncoder.encode(request.getPassword())
         );
 
-        return new UserResponse(userRepository.save(user));
+        User savedUser = userRepository.save(user);
+        Wallet wallet = walletService.createWalletWithInitialBalance(savedUser);
+
+        return new UserResponse(savedUser, wallet.getBalance());
     }
 
     @Override

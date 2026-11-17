@@ -2,32 +2,44 @@ package com.stocktrading.simulator.controller;
 
 import com.stocktrading.simulator.dto.UserResponse;
 import com.stocktrading.simulator.model.User;
+import com.stocktrading.simulator.model.Wallet;
 import com.stocktrading.simulator.repository.UserRepository;
+import com.stocktrading.simulator.service.WalletService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
 
     private final UserRepository userRepository;
+    private final WalletService walletService;
 
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository, WalletService walletService) {
         this.userRepository = userRepository;
+        this.walletService = walletService;
     }
 
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getCurrentUser(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication instanceof AnonymousAuthenticationToken) {
             return ResponseEntity.status(401).build();
         }
-        
+
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-                
-        return ResponseEntity.ok(new UserResponse(user));
+
+        BigDecimal balance = walletService.findWalletByUserId(user.getId())
+                .map(Wallet::getBalance)
+                .orElse(BigDecimal.ZERO);
+
+        return ResponseEntity.ok(new UserResponse(user, balance));
     }
 }

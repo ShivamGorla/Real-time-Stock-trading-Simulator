@@ -12,14 +12,17 @@ public class UserResponse {
     private LocalDateTime createdAt;
     private BigDecimal virtualBalance;
 
-    public UserResponse(User user) {
+    public UserResponse(User user, BigDecimal virtualBalance) {
         this.id = user.getId();
         this.name = user.getName();
         this.username = user.getUsername();
         this.email = user.getEmail();
         this.createdAt = user.getCreatedAt();
-        // Server-controlled starting balance for Phase 2 dashboard
-        this.virtualBalance = new BigDecimal("100000.00");
+        this.virtualBalance = virtualBalance != null ? virtualBalance : BigDecimal.ZERO;
+    }
+
+    public UserResponse(User user) {
+        this(user, BigDecimal.ZERO);
     }
 
     public Long getId() { return id; }
