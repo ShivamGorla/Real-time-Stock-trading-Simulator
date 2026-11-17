@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | StockSim</title>
+    <title>Trading Dashboard | StockSim</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,8 +22,8 @@
         </a>
         <nav class="nav" id="site-nav" aria-label="Main">
             <a href="/dashboard.html" aria-current="page">Dashboard</a>
-            <span class="nav-soon" aria-disabled="true">Market <span class="tag-soon">Soon</span></span>
-            <span class="nav-soon" aria-disabled="true">Portfolio <span class="tag-soon">Soon</span></span>
+            <a href="#market-overview" class="nav-link">Market</a>
+            <a href="#portfolio-section" class="nav-link">Portfolio</a>
         </nav>
         <div class="header-actions">
             <span class="user-chip"><span class="avatar" id="user-initials" aria-hidden="true">&nbsp;</span><span class="user-name" id="user-chip-name"></span></span>
@@ -41,64 +41,201 @@
 
 <main class="dash" id="main">
     <div class="wrap" id="dashboard-profile">
+        <!-- Top Greeting Bar -->
         <div class="dash-head">
             <div>
                 <p id="greeting">Welcome back</p>
                 <h1 id="user-name"><span class="skeleton">Loading name</span></h1>
             </div>
-            <button type="button" class="btn btn-quiet" id="logout-btn-sm" hidden>Sign out</button>
+            <div class="dash-head-actions">
+                <span class="tag-status-live"><span class="live-dot" aria-hidden="true"></span>Simulated Practice Exchange</span>
+                <button type="button" class="btn btn-quiet" id="logout-btn-sm" hidden>Sign out</button>
+            </div>
         </div>
 
-        <div class="dash-grid">
-            <div>
-                <section class="panel" aria-labelledby="balance-title">
-                    <div class="panel-head"><h2 id="balance-title">Account value</h2><span class="tag-soon">Virtual money</span></div>
-                    <dl class="balance">
-                        <div class="balance-main">
-                            <dt>Cash available</dt>
-                            <dd id="user-balance"><span class="skeleton">₹1,00,000.00</span></dd>
+        <!-- Simulated Data Notice Bar -->
+        <div id="market-feed-notice" class="market-notice-bar" role="status" hidden>
+            <span class="status status-build" aria-hidden="true"></span>
+            Illustrative simulated market data — backend market feed unavailable.
+        </div>
+
+        <!-- Market Overview Section -->
+        <section class="market-overview-section" id="market-overview" aria-labelledby="market-overview-heading">
+            <h2 id="market-overview-heading" class="sr-only">Market Overview</h2>
+            <div class="dash-overview-grid" id="market-overview-grid">
+                <!-- Skeletons for Overview Cards -->
+                <div class="panel overview-card"><span class="skeleton">Loading benchmark data...</span></div>
+                <div class="panel overview-card"><span class="skeleton">Loading top gainer...</span></div>
+                <div class="panel overview-card"><span class="skeleton">Loading top loser...</span></div>
+                <div class="panel overview-card"><span class="skeleton">Loading most active...</span></div>
+            </div>
+        </section>
+
+        <!-- Main Trading Workspace: 3 Columns -->
+        <div class="dash-workspace" id="trading-workspace">
+            <!-- LEFT COLUMN: Market Watchlist -->
+            <aside class="workspace-col-left" aria-label="Stock Market Watchlist">
+                <section class="panel watchlist-panel">
+                    <div class="panel-head">
+                        <h2>Market Watchlist</h2>
+                        <span class="tag-sim">Simulated</span>
+                    </div>
+                    <!-- Search placeholder for Milestone 2 -->
+                    <div class="watchlist-search-box">
+                        <div class="search-input-wrap">
+                            <svg class="search-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4 4"/></svg>
+                            <input type="text" class="input input-sm" id="watchlist-search-placeholder" placeholder="Search stocks (Milestone 2)..." disabled aria-label="Search stocks">
                         </div>
-                        <div class="balance-sub">
-                            <div><dt>Invested</dt><dd>₹0.00</dd></div>
-                            <div><dt>Total profit or loss</dt><dd>₹0.00 (0.00%)</dd></div>
-                            <div><dt>Open positions</dt><dd>0</dd></div>
+                        <span class="tag-milestone">Filter activated in M2</span>
+                    </div>
+
+                    <!-- Stock List Items -->
+                    <div class="stock-list" id="watchlist-items" role="region" aria-label="Stock list">
+                        <div class="stock-item-skeleton"><span class="skeleton">Loading stock catalog...</span></div>
+                        <div class="stock-item-skeleton"><span class="skeleton">Loading stock catalog...</span></div>
+                        <div class="stock-item-skeleton"><span class="skeleton">Loading stock catalog...</span></div>
+                    </div>
+                </section>
+            </aside>
+
+            <!-- CENTER COLUMN: Selected Stock & Chart Workspace -->
+            <div class="workspace-col-center">
+                <!-- Selected Stock Detail Header -->
+                <section class="panel stock-detail-panel" aria-labelledby="selected-stock-symbol">
+                    <div class="stock-detail-head">
+                        <div>
+                            <div class="stock-title-row">
+                                <h2 class="stock-symbol" id="selected-stock-symbol">RELIANCE</h2>
+                                <span class="tag-sim">Simulated Data</span>
+                            </div>
+                            <p class="stock-company" id="selected-stock-name">Reliance Industries Ltd</p>
                         </div>
-                    </dl>
+                        <div class="stock-detail-quote r">
+                            <div class="stock-detail-price num" id="selected-stock-price">₹2,950.00</div>
+                            <div class="stock-detail-change num is-gain" id="selected-stock-change">+₹22.00 (+0.75%)</div>
+                        </div>
+                    </div>
+
+                    <!-- Price Chart Placeholder (Milestone 6) -->
+                    <div class="chart-placeholder-box" id="chart-placeholder">
+                        <div class="chart-preview-overlay">
+                            <svg class="chart-preview-svg" viewBox="0 0 600 200" aria-hidden="true">
+                                <g class="chart-grid">
+                                    <line x1="0" x2="600" y1="50" y2="50"/>
+                                    <line x1="0" x2="600" y1="100" y2="100"/>
+                                    <line x1="0" x2="600" y1="150" y2="150"/>
+                                </g>
+                                <path class="preview-area" d="M0 130 Q 150 70, 300 110 T 600 60 L 600 200 L 0 200 Z"/>
+                                <path class="preview-line" d="M0 130 Q 150 70, 300 110 T 600 60"/>
+                            </svg>
+                            <div class="chart-milestone-banner">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M18 9l-5 5-4-4-3 3"/></svg>
+                                <strong>Interactive SVG Stock Chart</strong>
+                                <p>Historical price movement and timeframe filters will be activated in <em>Milestone 6</em>.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Key Market Stats -->
+                    <div class="stock-stats-strip">
+                        <div><dt>Day High</dt><dd class="num" id="selected-stock-high">₹2,965.00</dd></div>
+                        <div><dt>Day Low</dt><dd class="num" id="selected-stock-low">₹2,915.00</dd></div>
+                        <div><dt>Sector</dt><dd id="selected-stock-sector">Energy / Conglomerate</dd></div>
+                        <div><dt>Status</dt><dd id="selected-stock-updated">Last simulated tick: Just now</dd></div>
+                    </div>
                 </section>
 
-                <section class="panel holdings" aria-labelledby="holdings-title">
-                    <div class="panel-head"><h2 id="holdings-title">Holdings</h2></div>
-                    <table class="table">
-                        <thead>
-                            <tr><th scope="col">Stock</th><th scope="col" class="r">Qty</th><th scope="col" class="r">Avg cost</th><th scope="col" class="r">P&amp;L</th></tr>
-                        </thead>
-                    </table>
-                    <div class="empty">
-                        <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 32h28"/><path d="M12 26V14M12 10v4M28 22v-8M28 26v-4"/><rect x="9" y="14" width="6" height="8" rx="1"/><rect x="25" y="14" width="6" height="8" rx="1"/></svg>
-                        <strong>You don't own any stocks yet</strong>
-                        <p>Buying and selling opens in the next update. Your ₹1,00,000 will be ready to use the moment it does.</p>
+                <!-- Market Information Section -->
+                <section class="panel market-info-panel" aria-labelledby="market-info-title">
+                    <div class="panel-head">
+                        <h2 id="market-info-title">Market Trading Rules & Guidelines</h2>
+                        <span class="tag-soon">Rules</span>
+                    </div>
+                    <div class="panel-body">
+                        <ul class="trading-rules-list">
+                            <li><strong>Virtual Execution:</strong> All buy and sell orders are simulated. No real money or real exchange connectivity is involved.</li>
+                            <li><strong>Execution Settlement:</strong> In the full simulator, orders execute at the prevailing simulated market price upon backend submission.</li>
+                            <li><strong>Initial Capital:</strong> Every account is provisioned with a virtual bankroll of ₹1,00,000.00 for trading experimentation.</li>
+                        </ul>
                     </div>
                 </section>
             </div>
 
-            <div class="side-stack">
+            <!-- RIGHT COLUMN: Wallet, Ticket & Portfolio -->
+            <div class="workspace-col-right" id="portfolio-section">
+                <!-- Virtual Wallet Balance Panel -->
+                <section class="panel" aria-labelledby="balance-title">
+                    <div class="panel-head">
+                        <h2 id="balance-title">Virtual Wallet</h2>
+                        <span class="tag-soon">Practice Cash</span>
+                    </div>
+                    <dl class="balance">
+                        <div class="balance-main">
+                            <dt>Available Cash</dt>
+                            <dd id="user-balance"><span class="skeleton">₹1,00,000.00</span></dd>
+                        </div>
+                        <div class="balance-sub">
+                            <div><dt>Invested</dt><dd>₹0.00</dd></div>
+                            <div><dt>Total P&amp;L</dt><dd>₹0.00 (0.00%)</dd></div>
+                            <div><dt>Positions</dt><dd>0</dd></div>
+                        </div>
+                    </dl>
+                </section>
+
+                <!-- Trading Ticket Placeholder (Milestone 4) -->
+                <section class="panel ticket-placeholder-panel" aria-labelledby="ticket-title">
+                    <div class="panel-head">
+                        <h2 id="ticket-title">Order Ticket</h2>
+                        <span class="tag-milestone">Milestone 4</span>
+                    </div>
+                    <div class="panel-body">
+                        <div class="ticket-tab-preview">
+                            <span class="tab-preview tab-preview-buy">Buy</span>
+                            <span class="tab-preview">Sell</span>
+                        </div>
+                        <div class="ticket-form-preview">
+                            <div class="field" style="margin-bottom:12px;">
+                                <label style="font-size:0.8125rem;color:var(--ink-3);">Order Type</label>
+                                <input type="text" class="input input-sm" value="Market Order" disabled>
+                            </div>
+                            <div class="field" style="margin-bottom:12px;">
+                                <label style="font-size:0.8125rem;color:var(--ink-3);">Quantity (Shares)</label>
+                                <input type="number" class="input input-sm" value="10" disabled>
+                            </div>
+                        </div>
+                        <div class="ticket-placeholder-notice">
+                            <p><strong>Order Execution Ready in Milestone 4</strong></p>
+                            <small>Order validation, UUID tracking, and CSRF token settlement will be enabled in the trading engine milestone.</small>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Portfolio Holdings Placeholder (Milestone 3) -->
+                <section class="panel holdings-placeholder-panel" aria-labelledby="holdings-title">
+                    <div class="panel-head">
+                        <h2 id="holdings-title">Holdings</h2>
+                        <span class="tag-milestone">Milestone 3</span>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr><th scope="col">Stock</th><th scope="col" class="r">Qty</th><th scope="col" class="r">Avg</th><th scope="col" class="r">P&amp;L</th></tr>
+                        </thead>
+                    </table>
+                    <div class="empty" style="padding: 24px 16px;">
+                        <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:32px;height:32px;"><path d="M6 32h28"/><path d="M12 26V14M12 10v4M28 22v-8M28 26v-4"/><rect x="9" y="14" width="6" height="8" rx="1"/><rect x="25" y="14" width="6" height="8" rx="1"/></svg>
+                        <strong style="font-size:0.9375rem;">No open positions</strong>
+                        <p style="font-size:0.8125rem;">Live portfolio holdings will automatically track in <em>Milestone 3</em> once trading begins.</p>
+                    </div>
+                </section>
+
+                <!-- Account Identity Summary Card -->
                 <section class="panel" aria-labelledby="account-title">
-                    <div class="panel-head"><h2 id="account-title">Account</h2></div>
+                    <div class="panel-head"><h2 id="account-title">Account Profile</h2></div>
                     <dl class="panel-body kv">
                         <div><dt>Username</dt><dd id="user-username"><span class="skeleton">username</span></dd></div>
                         <div><dt>Email</dt><dd id="user-email"><span class="skeleton">email address</span></dd></div>
                         <div><dt>Member since</dt><dd id="user-since"><span class="skeleton">date</span></dd></div>
                     </dl>
-                </section>
-
-                <section class="panel" aria-labelledby="next-title">
-                    <div class="panel-head"><h2 id="next-title">Coming to your account</h2></div>
-                    <ul class="panel-body next-list">
-                        <li><span class="status status-build" aria-hidden="true"></span>A simulated market to browse stocks</li>
-                        <li><span class="status status-build" aria-hidden="true"></span>Buy and sell orders</li>
-                        <li><span class="status status-build" aria-hidden="true"></span>Portfolio with profit and loss</li>
-                        <li><span class="status status-plan" aria-hidden="true"></span>Trade history and price alerts</li>
-                    </ul>
                 </section>
             </div>
         </div>
@@ -107,7 +244,7 @@
 
 <footer class="site-footer">
     <div class="wrap footer-row">
-        <p style="margin:0">Simulation only. No real money or securities are involved.</p>
+        <p style="margin:0">Simulation only. No real money or securities are involved. Academic Project — StockSim.</p>
         <ul class="footer-links">
             <li><a href="/privacy.html">Privacy Policy</a></li>
             <li><a href="/terms.html">Terms of Use</a></li>
@@ -116,6 +253,9 @@
 </footer>
 
 <script src="/js/app.js"></script>
+<script src="/js/mock-data.js"></script>
+<script src="/js/api.js"></script>
 <script src="/js/auth.js"></script>
+<script src="/js/dashboard.js"></script>
 </body>
 </html>
