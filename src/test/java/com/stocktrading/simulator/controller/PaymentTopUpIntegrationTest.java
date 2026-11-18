@@ -241,6 +241,49 @@ class PaymentTopUpIntegrationTest {
             .filter(t -> t.getCategory() == TransactionCategory.TOP_UP)
             .count();
         assertEquals(0, topUpLedgerEntries);
+
+        // Now free headroom in the wallet and retry with the EXACT SAME Idempotency-Key -> settles cleanly ONCE
+        tx.executeWithoutResult(status -> {
+            Wallet w = walletRepository.findByUserId(alice.getId()).orElseThrow();
+            w.debit(new BigDecimal("1000.00"));
+            walletRepository.saveAndFlush(w);
+        });
+
+        mockMvc.perform(topUp("alice", "key-overflow-1", "500.00"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("SUCCESS"));
+
+        // Second replay after SUCCESS returns same payment and does NOT credit twice
+        mockMvc.perform(topUp("alice", "key-overflow-1", "500.00"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("SUCCESS"));
+
+        long finalTopUpLedgerEntries = walletTransactionRepository
+            .findByWalletId(wallet.getId(), Pageable.unpaged()).getContent().stream()
+            .filter(t -> t.getCategory() == TransactionCategory.TOP_UP)
+            .count();
+        assertEquals(1, finalTopUpLedgerEntries);
+        assertEquals(1, paymentTransactionRepository.count());
+    }
+
+    @Test
+    @DisplayName("Retrying a declined top-up with the same Idempotency-Key returns identical FAILED payment and credits nothing")
+    void retryDeclinedTopUpWithSameKeyReturnsFailedAndCreditsNothing() throws Exception {
+        User alice = registerUser("alice", "alice@example.com");
+
+        String first = mockMvc.perform(topUp("alice", "key-dec-retry1", "666.66"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("FAILED"))
+            .andReturn().getResponse().getContentAsString();
+        String second = mockMvc.perform(topUp("alice", "key-dec-retry1", "666.66"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("FAILED"))
+            .andReturn().getResponse().getContentAsString();
+
+        assertEquals(first, second);
+        assertEquals(1, paymentTransactionRepository.count());
+        Wallet wallet = walletRepository.findByUserId(alice.getId()).orElseThrow();
+        assertEquals(0, new BigDecimal("100000.00").compareTo(wallet.getBalance()));
     }
 
     @Test

@@ -5,6 +5,10 @@ document.addEventListener('DOMContentLoaded', function () {
     var tools = document.getElementById('account-tools');
     if (!tools) return;
 
+    var PENDING_TOPUP_STORAGE_KEY = 'stocksim.pendingTopUp';
+    var TOPUP_TIMEOUT_MS = 15000;
+    var memoryPendingTopUp = null;
+
     function csrf() {
         var m = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]+)/);
         return m ? decodeURIComponent(m[1]) : '';
@@ -27,6 +31,46 @@ document.addEventListener('DOMContentLoaded', function () {
             return '₹' + amount;
         }
     }
+    function readPendingTopUp() {
+        try {
+            var raw = window.sessionStorage ? window.sessionStorage.getItem(PENDING_TOPUP_STORAGE_KEY) : null;
+            if (raw) return JSON.parse(raw);
+        } catch (e) { /* sessionStorage unavailable */ }
+        return memoryPendingTopUp;
+    }
+    function savePendingTopUp(entry) {
+        memoryPendingTopUp = entry;
+        try {
+            if (window.sessionStorage) {
+                window.sessionStorage.setItem(PENDING_TOPUP_STORAGE_KEY, JSON.stringify(entry));
+            }
+        } catch (e) { /* sessionStorage unavailable */ }
+    }
+    function clearPendingTopUp() {
+        memoryPendingTopUp = null;
+        try {
+            if (window.sessionStorage) {
+                window.sessionStorage.removeItem(PENDING_TOPUP_STORAGE_KEY);
+            }
+        } catch (e) { /* sessionStorage unavailable */ }
+    }
+    function generateKey() {
+        if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+        return 'topup-' + String(Date.now()) + '-' + Math.random().toString(36).slice(2, 12);
+    }
+    /**
+     * Reuses the saved Idempotency-Key when retrying an ambiguous top-up of the same amount so
+     * network timeouts or transient 5xx/409 responses never create a second payment or double-credit.
+     */
+    function getOrCreateTopUpKey(normalizedAmount) {
+        var existing = readPendingTopUp();
+        if (existing && existing.amount === normalizedAmount && existing.key) {
+            return existing.key;
+        }
+        var key = generateKey();
+        savePendingTopUp({ key: key, amount: normalizedAmount });
+        return key;
+    }
     function refreshUser() {
         return fetch('/api/user/me').then(function (r) { return r.ok ? r.json() : null; }).then(function (u) {
             if (!u) return;
@@ -36,14 +80,25 @@ document.addEventListener('DOMContentLoaded', function () {
             if (balEl && u.virtualBalance != null) balEl.textContent = formatInr(u.virtualBalance);
         });
     }
-    function send(method, url, payload, extraHeaders) {
+    function send(method, url, payload, extraHeaders, timeoutMs) {
         var headers = Object.assign({ 'Content-Type': 'application/json', 'X-XSRF-TOKEN': csrf() }, extraHeaders || {});
-        return fetch(url, { method: method, headers: headers, body: JSON.stringify(payload) }).then(function (res) {
+        var opts = { method: method, headers: headers, body: JSON.stringify(payload) };
+        var controller = (typeof AbortController !== 'undefined' && timeoutMs) ? new AbortController() : null;
+        var timer = null;
+        if (controller) {
+            opts.signal = controller.signal;
+            timer = setTimeout(function () { controller.abort(); }, timeoutMs);
+        }
+        return fetch(url, opts).then(function (res) {
+            if (timer) clearTimeout(timer);
             return res.text().then(function (t) {
                 var body = null;
                 try { body = t ? JSON.parse(t) : null; } catch (e) { /* not JSON */ }
                 return { ok: res.ok, status: res.status, body: body };
             });
+        }, function (err) {
+            if (timer) clearTimeout(timer);
+            throw err;
         });
     }
     // Disables the button while the request runs so double clicks cannot submit twice.
@@ -88,19 +143,36 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     wire('topup-form', function (form) {
-        var amount = document.getElementById('topup-amount').value;
-        if (!amount || Number(amount) <= 0) return say('Enter an amount.', false);
-        // A fresh key per submission; the server returns the original result if the same key is replayed.
-        var key = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(36).slice(2);
-        return send('POST', '/api/payments/top-up', { amount: Number(amount) }, { 'Idempotency-Key': key }).then(function (r) {
-            if (!r.ok) return say(errorText(r.body, 'Top-up failed.'), false);
-            if (r.body.status === 'SUCCESS') {
-                form.reset();
-                say('Simulated top-up of ₹' + r.body.amount + ' added.', true);
-                return refreshUser();
-            } else {
-                say('The simulated payment was declined. Nothing was added.', false);
-            }
-        });
+        var rawAmount = document.getElementById('topup-amount').value;
+        var numericAmount = Number(rawAmount);
+        if (!rawAmount || !isFinite(numericAmount) || numericAmount <= 0) return say('Enter an amount.', false);
+        var normalizedAmount = numericAmount.toFixed(2);
+        var key = getOrCreateTopUpKey(normalizedAmount);
+
+        return send('POST', '/api/payments/top-up', { amount: Number(normalizedAmount) }, { 'Idempotency-Key': key }, TOPUP_TIMEOUT_MS)
+            .then(function (r) {
+                if (r.ok && r.body && r.body.status === 'SUCCESS') {
+                    clearPendingTopUp();
+                    form.reset();
+                    say('Simulated top-up of ₹' + r.body.amount + ' added.', true);
+                    return refreshUser();
+                }
+                if (r.ok && r.body && r.body.status === 'FAILED') {
+                    clearPendingTopUp();
+                    say('The simulated payment was declined. Nothing was added.', false);
+                    return;
+                }
+                // Definitive client/auth rejections never created a payment -> safe to clear key
+                if (r.status === 400 || r.status === 401 || r.status === 403 || r.status === 422) {
+                    clearPendingTopUp();
+                    say(errorText(r.body, 'Top-up failed.'), false);
+                    return;
+                }
+                // Ambiguous or retryable server outcomes (409 conflict, 5xx, or PENDING): KEEP key for safe retry
+                say(errorText(r.body, 'Top-up status could not be confirmed.') + ' Click Add funds again to retry safely without double-crediting.', false);
+            }, function () {
+                // Network error or request timeout: KEEP key so retry replays the exact same payment
+                say('Top-up request timed out or lost connection. Click Add funds again to retry safely without double-crediting.', false);
+            });
     });
 });

@@ -248,4 +248,33 @@ class JpaHoldingsAdapterTest {
             })
         );
     }
+
+    @Test
+    @DisplayName("Aligned DECIMAL(12,2) price limit (9,999,999,999.99) is accepted; above limit is rejected")
+    void priceBoundaryAlignment_AcceptsMaxDecimal12_2AndRejectsAbove() {
+        BigDecimal maxDecimal12_2 = new BigDecimal("9999999999.99");
+        BigDecimal aboveLimit = new BigDecimal("10000000000.00");
+
+        transactionTemplate.execute(status -> {
+            jpaHoldingsAdapter.addShares(testUser.getId(), "TCS", 1, maxDecimal12_2, 100L);
+            return null;
+        });
+
+        Holding h = holdingRepository.findByUserIdAndStockId(testUser.getId(), testStock.getId()).orElseThrow();
+        assertEquals(1, h.getQuantity());
+        assertEquals(0, new BigDecimal("9999999999.990000").compareTo(h.getAverageCost()));
+
+        assertThrows(IllegalArgumentException.class, () ->
+            transactionTemplate.execute(status -> {
+                jpaHoldingsAdapter.addShares(testUser.getId(), "TCS", 1, aboveLimit, 101L);
+                return null;
+            })
+        );
+        assertThrows(IllegalArgumentException.class, () ->
+            transactionTemplate.execute(status -> {
+                jpaHoldingsAdapter.deductAvailableShares(testUser.getId(), "TCS", 1, aboveLimit, 102L);
+                return null;
+            })
+        );
+    }
 }

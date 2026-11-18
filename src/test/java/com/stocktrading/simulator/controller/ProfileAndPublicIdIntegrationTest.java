@@ -47,6 +47,7 @@ class ProfileAndPublicIdIntegrationTest {
     @Autowired private HoldingRepository holdingRepository;
     @Autowired private OrderRepository orderRepository;
     @Autowired private TradeRepository tradeRepository;
+    @Autowired private org.springframework.transaction.PlatformTransactionManager transactionManager;
 
     @BeforeEach
     @AfterEach
@@ -186,6 +187,38 @@ class ProfileAndPublicIdIntegrationTest {
         dup.setPublicUserId(543210);
         assertThatThrownBy(() -> userRepository.saveAndFlush(dup))
             .isInstanceOf(DataIntegrityViolationException.class);
+    }
+
+    @Test
+    @DisplayName("PublicIdBackfillRunner retries cleanly on unique constraint collision and detects legacy users missing wallets")
+    void backfillRetriesOnCollisionAndIdentifiesUsersWithoutWallet() throws Exception {
+        // Modern registered user WITH wallet
+        register("Has Wallet", "withwallet", "withwallet@example.com", "password123");
+        User withWallet = userRepository.findByUsername("withwallet").orElseThrow();
+
+        // Legacy user WITHOUT publicUserId and WITHOUT wallet
+        User legacyNoWallet = userRepository.saveAndFlush(
+            new User("Legacy No Wallet", "legacynowallet", "legacynw@example.com", passwordEncoder.encode("password123"))
+        );
+
+        // Verify read-only missing-wallet detection identifies ONLY legacyNoWallet
+        assertThat(userRepository.findUserIdsWithoutWallet()).containsExactly(legacyNoWallet.getId());
+
+        // Simulate a colliding candidate (withWallet's existing publicUserId) followed by a unique candidate
+        com.stocktrading.simulator.service.PublicUserIdGenerator collidingGenerator =
+            org.mockito.Mockito.mock(com.stocktrading.simulator.service.PublicUserIdGenerator.class);
+        org.mockito.Mockito.when(collidingGenerator.next())
+            .thenReturn(withWallet.getPublicUserId(), 888777);
+
+        PublicIdBackfillRunner runnerWithCollision = new PublicIdBackfillRunner(
+            userRepository, collidingGenerator, transactionManager
+        );
+        runnerWithCollision.run(null);
+
+        User reloaded = userRepository.findById(legacyNoWallet.getId()).orElseThrow();
+        assertThat(reloaded.getPublicUserId()).isEqualTo(888777);
+        // Backfill must NOT auto-grant wallets or duplicate initial funds
+        assertThat(walletRepository.findByUserId(legacyNoWallet.getId())).isEmpty();
     }
 
     @Test

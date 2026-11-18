@@ -28,7 +28,7 @@ import java.time.Instant;
 public class Holding {
 
     public static final BigDecimal MIN_STOCK_PRICE = new BigDecimal("0.01");
-    public static final BigDecimal MAX_STOCK_PRICE = new BigDecimal("999999999.99");
+    public static final BigDecimal MAX_STOCK_PRICE = new BigDecimal("9999999999.99");
     public static final BigDecimal MIN_MONETARY_VALUE = new BigDecimal("-9999999999999.99");
     public static final BigDecimal MAX_MONETARY_VALUE = new BigDecimal("9999999999999.99");
     public static final BigDecimal MIN_AVERAGE_COST = new BigDecimal("0.000000");
@@ -135,7 +135,7 @@ public class Holding {
             throw new IllegalArgumentException("Buy price must be strictly positive after normalization");
         }
         if (normalizedBuyPrice.compareTo(MAX_STOCK_PRICE) > 0) {
-            throw new IllegalArgumentException("Buy price exceeds maximum permitted stock price (999,999,999.99)");
+            throw new IllegalArgumentException("Buy price exceeds maximum permitted stock price (9,999,999,999.99)");
         }
 
         // 3. Integer overflow protection (propagates ArithmeticException directly if overflow occurs)
@@ -204,7 +204,7 @@ public class Holding {
             throw new IllegalArgumentException("Sell price must be strictly positive after normalization");
         }
         if (normalizedSellPrice.compareTo(MAX_STOCK_PRICE) > 0) {
-            throw new IllegalArgumentException("Sell price exceeds maximum permitted stock price (999,999,999.99)");
+            throw new IllegalArgumentException("Sell price exceeds maximum permitted stock price (9,999,999,999.99)");
         }
 
         // 3. Holding quantity availability validation

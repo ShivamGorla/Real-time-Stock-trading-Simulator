@@ -164,27 +164,27 @@ class HoldingTest {
     }
 
     @Test
-    @DisplayName("Maximum stock price in BUY is accepted; above maximum is rejected")
+    @DisplayName("Maximum stock price (9,999,999,999.99) in BUY is accepted; above DECIMAL(12,2) maximum is rejected")
     void buyPrice_Boundaries() {
-        holding.recordBuy(1, new BigDecimal("999999999.99"));
-        assertEquals(new BigDecimal("999999999.990000"), holding.getAverageCost());
+        holding.recordBuy(1, new BigDecimal("9999999999.99"));
+        assertEquals(new BigDecimal("9999999999.990000"), holding.getAverageCost());
 
         assertThrows(IllegalArgumentException.class, () ->
-            holding.recordBuy(1, new BigDecimal("1000000000.00"))
+            holding.recordBuy(1, new BigDecimal("10000000000.00"))
         );
     }
 
     @Test
-    @DisplayName("Maximum stock price in SELL is accepted; above maximum is rejected")
+    @DisplayName("Maximum stock price (9,999,999,999.99) in SELL is accepted; above DECIMAL(12,2) maximum is rejected")
     void sellPrice_Boundaries() {
         holding.recordBuy(1, new BigDecimal("100.00"));
 
-        holding.recordSell(1, new BigDecimal("999999999.99"));
-        assertEquals(new BigDecimal("999999899.99"), holding.getTotalRealizedPnl());
+        holding.recordSell(1, new BigDecimal("9999999999.99"));
+        assertEquals(new BigDecimal("9999999899.99"), holding.getTotalRealizedPnl());
 
         holding.recordBuy(1, new BigDecimal("100.00"));
         assertThrows(IllegalArgumentException.class, () ->
-            holding.recordSell(1, new BigDecimal("1000000000.00"))
+            holding.recordSell(1, new BigDecimal("10000000000.00"))
         );
     }
 

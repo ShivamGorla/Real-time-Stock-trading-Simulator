@@ -31,8 +31,8 @@ import java.math.BigDecimal;
 @Component
 public class JpaHoldingsAdapter implements HoldingsPort {
 
-    public static final BigDecimal MIN_PRICE = new BigDecimal("0.01");
-    public static final BigDecimal MAX_PRICE = new BigDecimal("999999999.99");
+    public static final BigDecimal MIN_PRICE = Holding.MIN_STOCK_PRICE;
+    public static final BigDecimal MAX_PRICE = Holding.MAX_STOCK_PRICE;
 
     private final HoldingRepository holdingRepository;
     private final StockRepository stockRepository;

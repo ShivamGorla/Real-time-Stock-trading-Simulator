@@ -482,4 +482,35 @@ class TradeSettlementIntegrationTest {
         // Exactly one holding row
         assertEquals(1, holdingRepository.findByUserId(testUser.getId()).size());
     }
+
+    @Test
+    @DisplayName("11. Aligned DECIMAL(12,2) ceiling price (9,999,999,999.99) settles end-to-end across BUY and SELL")
+    void highCeilingPrice_AlignedAcrossEngineAndHoldings() {
+        BigDecimal ceilingPrice = new BigDecimal("9999999999.99");
+        stockService.createStockIfAbsent("BRKA", "High Price Corp", ceilingPrice);
+
+        // Fund wallet cleanly to cover ceiling price
+        Wallet w = walletRepository.findByUserId(testUser.getId()).orElseThrow();
+        w.credit(new BigDecimal("10000000000.00"));
+        walletRepository.saveAndFlush(w);
+
+        OrderResponse buyOrder = orderService.createBuyOrder(
+                "settletrader",
+                new OrderRequest(UUID.randomUUID().toString(), "BRKA", 1)
+        );
+        OrderResponse executedBuy = orderExecutionService.executeOrder(buyOrder.getId(), "settletrader");
+        assertEquals(OrderStatus.EXECUTED, executedBuy.getStatus());
+        assertEquals(0, ceilingPrice.compareTo(executedBuy.getExecutionPrice()));
+
+        OrderResponse sellOrder = orderService.createSellOrder(
+                "settletrader",
+                new OrderRequest(UUID.randomUUID().toString(), "BRKA", 1)
+        );
+        OrderResponse executedSell = orderExecutionService.executeOrder(sellOrder.getId(), "settletrader");
+        assertEquals(OrderStatus.EXECUTED, executedSell.getStatus());
+        assertEquals(0, ceilingPrice.compareTo(executedSell.getExecutionPrice()));
+
+        Wallet walletAfter = walletRepository.findByUserId(testUser.getId()).orElseThrow();
+        assertEquals(0, new BigDecimal("10000100000.00").compareTo(walletAfter.getBalance()));
+    }
 }

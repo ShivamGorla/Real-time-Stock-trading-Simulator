@@ -4,6 +4,7 @@ import com.stocktrading.simulator.service.EmailVerificationGate;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.context.SecurityContext;
@@ -31,6 +32,38 @@ public class SecurityConfig {
                 .csrfTokenRequestHandler(requestHandler)
             )
             .authorizeHttpRequests(auth -> auth
+                // Explicit static frontend pages and assets
+                .requestMatchers(
+                    HttpMethod.GET,
+                    "/",
+                    "/index.html",
+                    "/login.html",
+                    "/register.html",
+                    "/dashboard.html",
+                    "/forgot-password.html",
+                    "/reset-password.html",
+                    "/verify-email.html",
+                    "/privacy.html",
+                    "/terms.html",
+                    "/favicon.svg",
+                    "/favicon.ico",
+                    "/css/**",
+                    "/js/**"
+                ).permitAll()
+                .requestMatchers("/error").permitAll()
+                // Explicit public API endpoints: health check, public stock catalog (GET only), and auth flows
+                .requestMatchers(HttpMethod.GET, "/api/health", "/api/stocks/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/auth/verify-email").permitAll()
+                .requestMatchers(
+                    HttpMethod.POST,
+                    "/api/auth/register",
+                    "/api/auth/login",
+                    "/api/auth/logout",
+                    "/api/auth/resend-verification",
+                    "/api/auth/forgot-password",
+                    "/api/auth/reset-password"
+                ).permitAll()
+                // Protected user, financial, trading, portfolio, payment, and reporting endpoints
                 .requestMatchers(
                     "/api/user/**",
                     "/api/wallet/**",
@@ -40,8 +73,8 @@ public class SecurityConfig {
                     "/api/reports/**",
                     "/api/payments/**"
                 ).authenticated()
-                .requestMatchers("/api/stocks/**").permitAll()
-                .anyRequest().permitAll() // Allow static resources, health, and auth endpoints
+                // Secure by default: no catch-all public access for any other /api/** or unrecognized route
+                .anyRequest().authenticated()
             )
             .exceptionHandling(exc -> exc
                 .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
