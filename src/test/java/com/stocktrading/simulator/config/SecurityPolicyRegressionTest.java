@@ -31,6 +31,7 @@ class SecurityPolicyRegressionTest {
         mockMvc.perform(get("/css/style.css")).andExpect(status().isOk());
         mockMvc.perform(get("/js/auth.js")).andExpect(status().isOk());
         mockMvc.perform(get("/js/profile.js")).andExpect(status().isOk());
+        mockMvc.perform(get("/js/assistant.js")).andExpect(status().isOk());
         mockMvc.perform(get("/api/health")).andExpect(status().isOk());
         mockMvc.perform(get("/api/stocks")).andExpect(status().isOk());
     }
@@ -48,6 +49,12 @@ class SecurityPolicyRegressionTest {
         mockMvc.perform(get("/api/reports/profile")).andExpect(status().isUnauthorized());
         mockMvc.perform(get("/api/reports/portfolio")).andExpect(status().isUnauthorized());
         mockMvc.perform(get("/api/reports/trading-history")).andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/api/assistant/conversations/test-conv-1")).andExpect(status().isUnauthorized());
+        mockMvc.perform(post("/api/assistant/chat")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"message\":\"Hi\"}"))
+            .andExpect(status().isUnauthorized());
     }
 
     @Test

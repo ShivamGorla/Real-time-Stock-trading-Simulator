@@ -71,7 +71,8 @@ public class SecurityConfig {
                     "/api/trades/**",
                     "/api/portfolio/**",
                     "/api/reports/**",
-                    "/api/payments/**"
+                    "/api/payments/**",
+                    "/api/assistant/**"
                 ).authenticated()
                 // Secure by default: no catch-all public access for any other /api/** or unrecognized route
                 .anyRequest().authenticated()

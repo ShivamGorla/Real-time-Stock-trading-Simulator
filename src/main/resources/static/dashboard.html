@@ -79,6 +79,33 @@
                         <p>Buying and selling opens in the next update. Your ₹1,00,000 will be ready to use the moment it does.</p>
                     </div>
                 </section>
+
+                <section class="panel assistant-panel" aria-labelledby="assistant-title" id="assistant-panel">
+                    <div class="panel-head">
+                        <h2 id="assistant-title">AI Trading Assistant</h2>
+                        <button type="button" id="assistant-new-btn" class="btn btn-quiet">New conversation</button>
+                    </div>
+                    <div class="panel-body">
+                        <div class="assistant-starters" aria-label="Suggested prompts">
+                            <button type="button" class="btn btn-quiet" data-assistant-prompt="Summarize my portfolio">Summarize my portfolio</button>
+                            <button type="button" class="btn btn-quiet" data-assistant-prompt="What is my wallet balance?">What is my wallet balance?</button>
+                            <button type="button" class="btn btn-quiet" data-assistant-prompt="Explain my recent trades">Explain my recent trades</button>
+                            <button type="button" class="btn btn-quiet" data-assistant-prompt="Tell me about TCS">Tell me about TCS</button>
+                            <button type="button" class="btn btn-quiet" data-assistant-prompt="Preview buying 5 shares of INFY">Preview buying 5 shares of INFY</button>
+                        </div>
+
+                        <div id="assistant-messages" class="chat-log" role="log" aria-live="polite"></div>
+                        <p id="assistant-loading" class="field-hint" hidden>Assistant is thinking…</p>
+                        <div id="assistant-error" class="alert alert-error" role="alert" hidden></div>
+
+                        <form id="assistant-form" class="chat-form" novalidate>
+                            <label for="assistant-input" class="skip-link">Ask the AI Trading Assistant</label>
+                            <input type="text" id="assistant-input" class="input" maxlength="4000" placeholder="Ask about your portfolio, wallet, stocks, or preview a trade…" autocomplete="off" required>
+                            <button type="submit" id="assistant-send" class="btn btn-primary">Send</button>
+                        </form>
+                        <p class="field-hint assistant-disclaimer">AI responses are educational. Simulated market data only. Trades are never executed through chat.</p>
+                    </div>
+                </section>
             </div>
 
             <div class="side-stack">
@@ -167,5 +194,6 @@
 <script src="/js/app.js"></script>
 <script src="/js/auth.js"></script>
 <script src="/js/profile.js"></script>
+<script src="/js/assistant.js"></script>
 </body>
 </html>
