@@ -632,3 +632,137 @@ button, input { font: inherit; color: inherit; }
         text-align: left;
     }
 }
+
+/* ---------- Milestone 2: Search & Interactive Chart ---------- */
+
+/* Search input improvements */
+.search-clear-btn {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    width: 22px; height: 22px; border-radius: 50%; border: none;
+    background: var(--surface-2); color: var(--ink-2); font-size: 14px;
+    font-weight: 700; line-height: 1; cursor: pointer; display: grid; place-items: center;
+    transition: background-color .15s ease, color .15s ease;
+}
+.search-clear-btn:hover {
+    background: var(--line-strong); color: var(--ink);
+}
+.search-meta-row {
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    margin-top: 4px; font-size: 0.75rem;
+}
+.search-count {
+    color: var(--ink-3); font-weight: 600;
+}
+.search-empty-state {
+    padding: 32px 16px; text-align: center; color: var(--ink-2);
+}
+.search-empty-state svg {
+    width: 32px; height: 32px; margin: 0 auto 10px; color: var(--ink-3);
+}
+.search-empty-state strong {
+    display: block; font-size: 0.9375rem; color: var(--ink); margin-bottom: 4px;
+}
+.search-empty-state p {
+    font-size: 0.8125rem; color: var(--ink-3); max-width: 24ch; margin: 0 auto;
+}
+
+/* Button Small */
+.btn-sm {
+    min-height: 32px; padding: 0 14px; font-size: 0.8125rem; border-radius: var(--r-sm);
+}
+
+/* Interactive Chart Panel */
+.stock-chart-panel {
+    border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface);
+    overflow: hidden; margin-bottom: 16px;
+}
+.chart-controls-bar {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--surface);
+    flex-wrap: wrap;
+}
+.timeframe-group {
+    display: inline-flex; align-items: center; gap: 4px; background: var(--surface-2);
+    padding: 3px; border-radius: var(--r-sm); border: 1px solid var(--line);
+}
+.timeframe-pill {
+    min-height: 26px; padding: 0 10px; border: none; background: transparent;
+    border-radius: 4px; font-size: 0.75rem; font-weight: 700; color: var(--ink-2);
+    cursor: pointer; transition: background-color .15s ease, color .15s ease;
+}
+.timeframe-pill:hover {
+    color: var(--ink); background: color-mix(in srgb, var(--ink) 6%, transparent);
+}
+.timeframe-pill.is-active {
+    background: var(--brand); color: var(--on-brand);
+}
+:root[data-theme="dark"] .timeframe-pill.is-active {
+    background: var(--brand); color: #04120C;
+}
+.chart-meta-indicators {
+    display: flex; align-items: center; gap: 10px; font-size: 0.75rem; color: var(--ink-3);
+}
+.chart-open-indicator {
+    display: inline-flex; align-items: center; gap: 6px;
+}
+
+/* Chart Canvas & Overlays */
+.chart-stage {
+    position: relative; height: 220px; width: 100%; background: var(--surface);
+    overflow: hidden;
+}
+.chart-svg {
+    width: 100%; height: 100%; display: block;
+}
+.chart-grid line {
+    stroke: var(--chart-grid); stroke-width: 1;
+}
+.chart-open-group line {
+    stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0.75;
+}
+.chart-line {
+    fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round;
+}
+.chart-area {
+    opacity: 0.14;
+}
+.chart-dot {
+    stroke: var(--surface); stroke-width: 2;
+}
+.chart-axis text {
+    fill: var(--ink-3); font-size: 10px; font-variant-numeric: tabular-nums;
+}
+
+/* Chart States */
+.chart-state-overlay {
+    position: absolute; inset: 0; z-index: 10;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    backdrop-filter: blur(2px); text-align: center; padding: 20px; font-size: 0.875rem; color: var(--ink-2);
+}
+.chart-state-overlay[hidden] {
+    display: none;
+}
+.chart-state-error svg {
+    width: 30px; height: 30px; color: var(--loss);
+}
+.chart-spinner {
+    width: 24px; height: 24px; border: 2.5px solid var(--line-strong);
+    border-top-color: var(--brand); border-radius: 50%;
+    animation: chart-spin 0.8s linear infinite;
+}
+@keyframes chart-spin {
+    to { transform: rotate(360deg); }
+}
+
+.chart-footer-note {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    padding: 8px 16px 10px; font-size: 0.75rem; color: var(--ink-3);
+    border-top: 1px solid var(--line); background: var(--surface);
+}
+
+@media (max-width: 480px) {
+    .chart-controls-bar {
+        flex-direction: column; align-items: flex-start;
+    }
+}

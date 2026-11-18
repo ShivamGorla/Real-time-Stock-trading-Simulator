@@ -80,13 +80,17 @@
                         <h2>Market Watchlist</h2>
                         <span class="tag-sim">Simulated</span>
                     </div>
-                    <!-- Search placeholder for Milestone 2 -->
+                    <!-- Search Box -->
                     <div class="watchlist-search-box">
                         <div class="search-input-wrap">
                             <svg class="search-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4 4"/></svg>
-                            <input type="text" class="input input-sm" id="watchlist-search-placeholder" placeholder="Search stocks (Milestone 2)..." disabled aria-label="Search stocks">
+                            <input type="text" class="input input-sm" id="watchlist-search" placeholder="Search by symbol or company..." aria-label="Search stocks by symbol or company" autocomplete="off" spellcheck="false">
+                            <button type="button" class="search-clear-btn" id="watchlist-search-clear" aria-label="Clear search" hidden>&times;</button>
                         </div>
-                        <span class="tag-milestone">Filter activated in M2</span>
+                        <div class="search-meta-row">
+                            <span class="search-count" id="watchlist-count">10 stocks</span>
+                            <span class="tag-sim">Simulated Catalog</span>
+                        </div>
                     </div>
 
                     <!-- Stock List Items -->
@@ -106,7 +110,7 @@
                         <div>
                             <div class="stock-title-row">
                                 <h2 class="stock-symbol" id="selected-stock-symbol">RELIANCE</h2>
-                                <span class="tag-sim">Simulated Data</span>
+                                <span class="tag-sim" id="selected-stock-sim-tag">Simulated Data</span>
                             </div>
                             <p class="stock-company" id="selected-stock-name">Reliance Industries Ltd</p>
                         </div>
@@ -116,23 +120,55 @@
                         </div>
                     </div>
 
-                    <!-- Price Chart Placeholder (Milestone 6) -->
-                    <div class="chart-placeholder-box" id="chart-placeholder">
-                        <div class="chart-preview-overlay">
-                            <svg class="chart-preview-svg" viewBox="0 0 600 200" aria-hidden="true">
-                                <g class="chart-grid">
-                                    <line x1="0" x2="600" y1="50" y2="50"/>
-                                    <line x1="0" x2="600" y1="100" y2="100"/>
-                                    <line x1="0" x2="600" y1="150" y2="150"/>
-                                </g>
-                                <path class="preview-area" d="M0 130 Q 150 70, 300 110 T 600 60 L 600 200 L 0 200 Z"/>
-                                <path class="preview-line" d="M0 130 Q 150 70, 300 110 T 600 60"/>
-                            </svg>
-                            <div class="chart-milestone-banner">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M18 9l-5 5-4-4-3 3"/></svg>
-                                <strong>Interactive SVG Stock Chart</strong>
-                                <p>Historical price movement and timeframe filters will be activated in <em>Milestone 6</em>.</p>
+                    <!-- Interactive SVG Stock Price Chart -->
+                    <div class="stock-chart-panel" id="stock-chart-container">
+                        <div class="chart-controls-bar">
+                            <div class="timeframe-group" role="tablist" aria-label="Chart Timeframes">
+                                <button type="button" class="timeframe-pill is-active" data-timeframe="1D" role="tab" aria-selected="true">1D</button>
+                                <button type="button" class="timeframe-pill" data-timeframe="1W" role="tab" aria-selected="false">1W</button>
+                                <button type="button" class="timeframe-pill" data-timeframe="1M" role="tab" aria-selected="false">1M</button>
+                                <button type="button" class="timeframe-pill" data-timeframe="ALL" role="tab" aria-selected="false">ALL</button>
                             </div>
+                            <div class="chart-meta-indicators">
+                                <span class="chart-open-indicator">Dashed line: Session Open</span>
+                                <span class="tag-sim">Simulated History</span>
+                            </div>
+                        </div>
+
+                        <!-- Chart Canvas and States Wrapper -->
+                        <div class="chart-stage">
+                            <!-- Loading State -->
+                            <div class="chart-state-overlay" id="chart-loading" hidden>
+                                <div class="chart-spinner"></div>
+                                <span>Loading price history...</span>
+                            </div>
+
+                            <!-- Error State with Retry -->
+                            <div class="chart-state-overlay chart-state-error" id="chart-error" hidden>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                <p id="chart-error-msg">Failed to load price history.</p>
+                                <button type="button" class="btn btn-secondary btn-sm" id="chart-retry-btn">Retry</button>
+                            </div>
+
+                            <!-- Empty State -->
+                            <div class="chart-state-overlay" id="chart-empty" hidden>
+                                <p>No historical price data available for this timeframe.</p>
+                            </div>
+
+                            <!-- Dynamic SVG Chart -->
+                            <svg id="stock-chart" class="chart-svg" viewBox="0 0 600 220" role="img" aria-label="Stock Price History Chart" preserveAspectRatio="none">
+                                <g class="chart-grid" id="chart-grid"></g>
+                                <g class="chart-open-group"><line id="chart-open-line" x1="0" x2="540" y1="0" y2="0"/></g>
+                                <path class="chart-area" id="chart-area" d=""/>
+                                <path class="chart-line" id="chart-line" d=""/>
+                                <circle class="chart-dot" id="chart-dot" r="4.5" cx="0" cy="0"/>
+                                <g class="chart-axis" id="chart-axis"></g>
+                            </svg>
+                        </div>
+
+                        <div class="chart-footer-note">
+                            <span id="chart-range-label">Simulated intraday price walk</span>
+                            <span id="chart-points-count" class="num">72 data points</span>
                         </div>
                     </div>
 
