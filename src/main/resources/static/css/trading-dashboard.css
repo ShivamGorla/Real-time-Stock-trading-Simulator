@@ -82,3 +82,6 @@
 }
 
 .market-holding-link { border: 0; padding: 0; background: none; color: var(--brand); font-weight: 800; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.market-selected-head > div { min-width: 0; overflow-wrap: anywhere; }
+.market-chart-legend { flex-wrap: wrap; }
+.market-panel-empty { padding-inline: 12px; }

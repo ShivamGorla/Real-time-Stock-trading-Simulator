@@ -1,0 +1,34 @@
+[
+  {
+    "File": "src/main/resources/static/css/style.css",
+    "PackagedHashMatches": true
+  },
+  {
+    "File": "src/main/resources/static/css/trading-dashboard.css",
+    "PackagedHashMatches": true
+  },
+  {
+    "File": "src/main/resources/static/dashboard.html",
+    "PackagedHashMatches": true
+  },
+  {
+    "File": "src/main/resources/static/js/app.js",
+    "PackagedHashMatches": true
+  },
+  {
+    "File": "src/main/resources/static/js/assistant.js",
+    "PackagedHashMatches": true
+  },
+  {
+    "File": "src/main/resources/static/js/auth.js",
+    "PackagedHashMatches": true
+  },
+  {
+    "File": "src/main/resources/static/js/profile.js",
+    "PackagedHashMatches": true
+  },
+  {
+    "File": "src/main/resources/static/js/trading-dashboard.js",
+    "PackagedHashMatches": true
+  }
+]

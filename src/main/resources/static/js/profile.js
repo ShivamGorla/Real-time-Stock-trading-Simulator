@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var PENDING_TOPUP_STORAGE_KEY = 'stocksim.pendingTopUp';
     var TOPUP_TIMEOUT_MS = 15000;
     var memoryPendingTopUp = null;
+    var accountId = null;
 
     function csrf() {
         var m = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]+)/);
@@ -25,11 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return fallback;
     }
     function formatInr(amount) {
-        try {
-            return '₹' + Number(amount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        } catch (e) {
-            return '₹' + amount;
-        }
+        return StockSim.formatINR(amount);
     }
     function readPendingTopUp() {
         try {
@@ -67,6 +64,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (existing && existing.amount === normalizedAmount && existing.key) {
             return existing.key;
         }
+        if (existing) throw new Error('A previous top-up is unresolved. Retry its amount (' + formatInr(existing.amount) + ') before adding a different amount.');
         var key = generateKey();
         savePendingTopUp({ key: key, amount: normalizedAmount });
         return key;
@@ -90,7 +88,6 @@ document.addEventListener('DOMContentLoaded', function () {
             timer = setTimeout(function () { controller.abort(); }, timeoutMs);
         }
         return fetch(url, opts).then(function (res) {
-            if (timer) clearTimeout(timer);
             return res.text().then(function (t) {
                 var body = null;
                 try { body = t ? JSON.parse(t) : null; } catch (e) { /* not JSON */ }
@@ -99,22 +96,31 @@ document.addEventListener('DOMContentLoaded', function () {
         }, function (err) {
             if (timer) clearTimeout(timer);
             throw err;
-        });
+        }).finally(function () { if (timer) clearTimeout(timer); });
     }
     // Disables the button while the request runs so double clicks cannot submit twice.
     function wire(formId, handler) {
         var form = document.getElementById(formId);
+        var busy = false;
         form.addEventListener('submit', function (e) {
             e.preventDefault();
+            if (busy) return;
+            if (!accountId) return say('Wait for your account to load, or refresh to try again.', false);
+            busy = true;
             var btn = form.querySelector('[type="submit"]');
             btn.disabled = true;
-            Promise.resolve(handler(form)).catch(function () {
-                say('Can’t reach the server. Try again.', false);
-            }).finally(function () { btn.disabled = false; });
+            btn.setAttribute('aria-busy', 'true');
+            Promise.resolve().then(function () { return handler(form); }).catch(function (err) {
+                say(err.message || 'Cannot reach the server. Try again.', false);
+            }).finally(function () { busy = false; btn.disabled = false; btn.setAttribute('aria-busy', 'false'); });
         });
     }
 
-    refreshUser();
+    StockSim.currentUser.then(function (user) {
+        if (!user) return;
+        accountId = user.id;
+        PENDING_TOPUP_STORAGE_KEY += '.' + user.id;
+    });
 
     wire('profile-form', function () {
         var name = document.getElementById('profile-name').value.trim();
@@ -145,7 +151,9 @@ document.addEventListener('DOMContentLoaded', function () {
     wire('topup-form', function (form) {
         var rawAmount = document.getElementById('topup-amount').value;
         var numericAmount = Number(rawAmount);
-        if (!rawAmount || !isFinite(numericAmount) || numericAmount <= 0) return say('Enter an amount.', false);
+        if (!rawAmount || !isFinite(numericAmount) || numericAmount < 100 || numericAmount > 500000 || !document.getElementById('topup-amount').checkValidity()) {
+            return say('Enter an amount from ₹100 to ₹5,00,000 with at most 2 decimal places.', false);
+        }
         var normalizedAmount = numericAmount.toFixed(2);
         var key = getOrCreateTopUpKey(normalizedAmount);
 
@@ -155,7 +163,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     clearPendingTopUp();
                     form.reset();
                     say('Simulated top-up of ₹' + r.body.amount + ' added.', true);
-                    return refreshUser();
+                    document.dispatchEvent(new Event('walletchange'));
+                    return refreshUser().catch(function () {
+                        say('Top-up succeeded. Account refresh failed; use Refresh data to update your balance.', true);
+                    });
                 }
                 if (r.ok && r.body && r.body.status === 'FAILED') {
                     clearPendingTopUp();

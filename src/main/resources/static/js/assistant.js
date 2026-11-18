@@ -67,14 +67,14 @@ document.addEventListener('DOMContentLoaded', function () {
         messagesEl.scrollTop = messagesEl.scrollHeight;
     }
 
-    function resetConversation() {
+    function resetConversation(focusInput) {
         conversationId = null;
         clearError();
         while (messagesEl.firstChild) {
             messagesEl.removeChild(messagesEl.firstChild);
         }
         appendBubble('assistant', 'Ask me about your portfolio, wallet balance, recent orders, stock prices, or preview a simulated trade.');
-        inputEl.focus();
+        if (focusInput) inputEl.focus();
     }
 
     function sendMessage(rawText) {
@@ -95,7 +95,10 @@ document.addEventListener('DOMContentLoaded', function () {
             payload.conversationId = conversationId;
         }
 
+        var controller = new AbortController();
+        var timeout = setTimeout(function () { controller.abort(); }, 60000);
         fetch('/api/assistant/chat', {
+            signal: controller.signal,
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -129,6 +132,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }).catch(function () {
             showError('Could not reach the StockSim server. Please try again.');
         }).finally(function () {
+            clearTimeout(timeout);
             setBusy(false);
             inputEl.focus();
         });
@@ -140,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     newBtn.addEventListener('click', function () {
-        if (!busy) resetConversation();
+        if (!busy) resetConversation(true);
     });
 
     starterBtns.forEach(function (btn) {

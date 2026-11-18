@@ -1,0 +1,53 @@
+{
+  "baseline": {
+    "initial": {
+      "formatters": 13,
+      "mutations": 49
+    },
+    "afterFiveRefreshes": {
+      "formatters": 73,
+      "mutations": 249
+    },
+    "userRequests": 2,
+    "topupPortfolioRequests": 0
+  },
+  "final": {
+    "initial": {
+      "formatters": 2,
+      "mutations": 40
+    },
+    "afterFiveRefreshes": {
+      "formatters": 2,
+      "mutations": 130
+    },
+    "userRequests": 1
+  },
+  "baselineLayouts": [
+    {
+      "width": 1440,
+      "scrollWidth": 1440,
+      "overflow": false
+    },
+    {
+      "width": 1280,
+      "scrollWidth": 1280,
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "scrollWidth": 768,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "scrollWidth": 390,
+      "overflow": false
+    },
+    {
+      "width": 360,
+      "scrollWidth": 376,
+      "overflow": true
+    }
+  ],
+  "measurement": "Edge, same one-stock HTTP fixture; Intl.NumberFormat construction and market-workspace MutationObserver record counts; five sequential manual refreshes. Counts are not Lighthouse scores or wall-clock latency."
+}

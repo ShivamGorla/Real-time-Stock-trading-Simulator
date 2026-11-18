@@ -1,0 +1,1257 @@
+[
+  {
+    "Suite": "com.stocktrading.simulator.adapter.JpaHoldingsAdapterTest",
+    "Test": "optimisticLocking_DetectsConcurrentModification",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.adapter.JpaHoldingsAdapterTest",
+    "Test": "deductAvailableShares_InsufficientShares_ThrowsException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.adapter.JpaHoldingsAdapterTest",
+    "Test": "priceBoundaryAlignment_AcceptsMaxDecimal12_2AndRejectsAbove",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.adapter.JpaHoldingsAdapterTest",
+    "Test": "addShares_ValidBuy_CreatesHolding",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.adapter.JpaHoldingsAdapterTest",
+    "Test": "addShares_WithoutActiveTransaction_ThrowsException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.adapter.JpaHoldingsAdapterTest",
+    "Test": "addShares_MultipleBuys_UpdatesWac",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.adapter.JpaHoldingsAdapterTest",
+    "Test": "deductAvailableShares_ValidSell_DecreasesSharesAndCalculatesRealizedPnl",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.adapter.JpaHoldingsAdapterTest",
+    "Test": "deductAvailableShares_WithoutActiveTransaction_ThrowsException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.adapter.JpaHoldingsAdapterTest",
+    "Test": "parameterValidation_RejectsInvalidInputs",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.adapter.JpaHoldingsAdapterTest",
+    "Test": "deductAvailableShares_NoHolding_ThrowsException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.adapter.JpaWalletAdapterTest",
+    "Test": "operations_WhenUserHasNoWallet_ThrowsIllegalStateException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.adapter.JpaWalletAdapterTest",
+    "Test": "walletOwnershipIsolation_DebitOnOneUserDoesNotAffectAnother",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.adapter.JpaWalletAdapterTest",
+    "Test": "debitSufficientFunds_InsufficientFunds_ThrowsInsufficientFundsException_AndRollsBack",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.adapter.JpaWalletAdapterTest",
+    "Test": "debitAndCredit_CalledWithoutActiveTransaction_ThrowsIllegalTransactionStateException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.adapter.JpaWalletAdapterTest",
+    "Test": "monetaryValidation_RejectsInvalidAmountsAndOverflows",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.adapter.JpaWalletAdapterTest",
+    "Test": "creditFunds_ResultingBalanceExceedsMaxDecimal15_ThrowsIllegalStateException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.adapter.JpaWalletAdapterTest",
+    "Test": "optimisticLocking_DetectsConcurrentWalletModifications",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.adapter.JpaWalletAdapterTest",
+    "Test": "duplicateOrderReferenceId_ThrowsDataIntegrityViolation_AndPreventsDoubleOperation",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.adapter.JpaWalletAdapterTest",
+    "Test": "creditFunds_ValidSellOrder_IncreasesBalanceAndRecordsTradeSellLedger",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.adapter.JpaWalletAdapterTest",
+    "Test": "debitSufficientFunds_ValidBuyOrder_DecreasesBalanceAndRecordsTradeBuyLedger",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.adapter.JpaWalletTopUpAdapterTest",
+    "Test": "creditTopUp_WithoutTransaction_ThrowsIllegalTransactionStateException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.adapter.JpaWalletTopUpAdapterTest",
+    "Test": "creditTopUp_DuplicateReference_RollsBackWalletCredit",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.adapter.JpaWalletTopUpAdapterTest",
+    "Test": "creditTopUp_ExceedsMaxWalletDecimal_ThrowsIllegalStateAndRollsBack",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.adapter.JpaWalletTopUpAdapterTest",
+    "Test": "creditTopUp_ValidTransaction_CreditsWalletAndCreatesTopUpLedgerEntry",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.assistant.controller.AssistantControllerAndAgentIntegrationTest",
+    "Test": "conversationIsolationBetweenUsers",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.assistant.controller.AssistantControllerAndAgentIntegrationTest",
+    "Test": "providerErrorClassificationAndToolLoopCap",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.assistant.controller.AssistantControllerAndAgentIntegrationTest",
+    "Test": "promptInjectionCannotMutateState",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.assistant.controller.AssistantControllerAndAgentIntegrationTest",
+    "Test": "securityAndDisabledBehavior",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.assistant.service.AssistantClientAndMemoryUnitTest",
+    "Test": "oversizedSingleToolCallBlockAndSingleMessageStillRespectBounds",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.assistant.service.AssistantClientAndMemoryUnitTest",
+    "Test": "tradingAgentBoundsExcessiveToolCallsAndTotalToolResultSize",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.assistant.service.AssistantClientAndMemoryUnitTest",
+    "Test": "llmClientErrorClassification",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.assistant.service.AssistantClientAndMemoryUnitTest",
+    "Test": "concurrentRequestsOnSameConversationIdDoNotInterleaveAndPreserveCrossUserIsolation",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.assistant.service.AssistantClientAndMemoryUnitTest",
+    "Test": "conversationTrimmingNeverLeavesPartialOrOrphanedToolCallSequences",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.assistant.service.AssistantClientAndMemoryUnitTest",
+    "Test": "syntheticInternalExceptionSentinelNeverLeaksFromToolsOrRegistry",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.assistant.service.AssistantClientAndMemoryUnitTest",
+    "Test": "propertiesValidationAndMasking",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.assistant.service.AssistantClientAndMemoryUnitTest",
+    "Test": "conversationBoundsAndOwnership",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.assistant.tool.AssistantToolsIntegrationTest",
+    "Test": "rejectsInvalidArgumentsAndMalformedJson",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.assistant.tool.AssistantToolsIntegrationTest",
+    "Test": "allSixToolsWorkAgainstCanonicalServicesWithStrictUserIsolation",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.assistant.tool.AssistantToolsIntegrationTest",
+    "Test": "orderHistoryPaginationHandlesIntegerOverflowAndLargePagesSafely",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.assistant.tool.AssistantToolsIntegrationTest",
+    "Test": "toolRegistryContainsOnlySixReadOnlyTools",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.assistant.tool.AssistantToolsIntegrationTest",
+    "Test": "previewTradeProposalIsStrictlyReadOnlyAndNeverMutatesState",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.config.SecurityPolicyRegressionTest",
+    "Test": "unknownAndFutureRoutesDefaultToAuthenticated",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.config.SecurityPolicyRegressionTest",
+    "Test": "publicRoutesRemainAccessible",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.config.SecurityPolicyRegressionTest",
+    "Test": "protectedApiEndpointsRequireAuthentication",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.AuthControllerTest",
+    "Test": "login_InvalidCredentials_Fails",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.AuthControllerTest",
+    "Test": "register_DuplicateUsername_ReturnsBadRequest",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.AuthControllerTest",
+    "Test": "dashboard_Authenticated_ReturnsLiveBalanceAndTracksSubsequentChanges",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.AuthControllerTest",
+    "Test": "login_ValidCredentials_Success",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.AuthControllerTest",
+    "Test": "register_ValidRequest_Success",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.AuthControllerTest",
+    "Test": "dashboard_Unauthenticated_ReturnsUnauthorized",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.EmailAuthIntegrationTest",
+    "Test": "registrationSendsVerificationEmailAndTokenIsSingleUse",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.EmailAuthIntegrationTest",
+    "Test": "passwordResetTokenExpirySingleUseAndCrossTypeProtection",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.EmailVerificationRequiredIntegrationTest",
+    "Test": "enforcesVerificationOnlyForUnverifiedNewUsers",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.HealthControllerTest",
+    "Test": "healthEndpointReturnsUp",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.OrderControllerTest",
+    "Test": "getOrderById_NotOwnedByUser_Returns404WithoutLeaking",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.OrderControllerTest",
+    "Test": "placeSellOrder_ValidRequest_Returns201Created",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.OrderControllerTest",
+    "Test": "placeOrder_DuplicateClientOrderId_Returns409Conflict",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.OrderControllerTest",
+    "Test": "placeBuyOrder_ValidRequest_Returns201Created",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.OrderControllerTest",
+    "Test": "placeBuyOrder_MissingCsrf_Returns403",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.OrderControllerTest",
+    "Test": "placeOrder_InvalidClientOrderIdFormat_Returns400BadRequest",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.OrderControllerTest",
+    "Test": "placeOrder_UnknownSymbol_Returns404NotFound",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.OrderControllerTest",
+    "Test": "placeSellOrder_InsufficientHoldingException_Returns422UnprocessableEntity",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.OrderControllerTest",
+    "Test": "placeOrder_InvalidQuantity_Returns400BadRequest",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.OrderControllerTest",
+    "Test": "getUserOrders_ReturnsOnlyUserOrders",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.OrderControllerTest",
+    "Test": "unauthenticated_OrderEndpoints_Return401",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.OrderControllerTest",
+    "Test": "placeOrder_WithoutCsrf_Returns403Forbidden",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.OrderControllerTest",
+    "Test": "placeOrder_UnrelatedDataIntegrityViolation_Returns500WithoutSqlDetails",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.OrderHttpAutoExecutionIntegrationTest",
+    "Test": "httpBuyOrder_InsufficientFunds_LeavesOrderPendingAndRollsBackSettlement",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.OrderHttpAutoExecutionIntegrationTest",
+    "Test": "httpSellOrder_InsufficientShares_LeavesOrderPendingAndRollsBackSettlement",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.OrderHttpAutoExecutionIntegrationTest",
+    "Test": "httpBuyOrder_AutoExecutesCompletely",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.OrderHttpAutoExecutionIntegrationTest",
+    "Test": "httpSellOrder_AutoExecutesReverseFlowWithRealizedPnl",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.PaymentTopUpIntegrationTest",
+    "Test": "retryDeclinedTopUpWithSameKeyReturnsFailedAndCreditsNothing",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.PaymentTopUpIntegrationTest",
+    "Test": "declinedTopUpCreditsNothing",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.PaymentTopUpIntegrationTest",
+    "Test": "missingWalletTopUpPortFailsClosed",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.PaymentTopUpIntegrationTest",
+    "Test": "repeatedIdempotencyKeyCreditsOnceAndRejectsMismatchedAmount",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.PaymentTopUpIntegrationTest",
+    "Test": "successfulTopUpCreditsPersistentWalletAndLedger",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.PaymentTopUpIntegrationTest",
+    "Test": "concurrentTopUpSameKeyCreditsOnce",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.PaymentTopUpIntegrationTest",
+    "Test": "walletMutationFailureRollsBackPaymentStatusToPending",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.PaymentTopUpIntegrationTest",
+    "Test": "authCsrfAndUserScopingEnforced",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.PortfolioControllerTest",
+    "Test": "getPortfolio_ClosedPositions_FilteredCorrectly",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.PortfolioControllerTest",
+    "Test": "getPortfolio_Authenticated_ReturnsOk",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.PortfolioControllerTest",
+    "Test": "getPortfolio_ActivePositions_DefaultExcludeClosed",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.PortfolioControllerTest",
+    "Test": "getPortfolio_UserIsolation_DoesNotLeakOtherUsersHoldings",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.PortfolioControllerTest",
+    "Test": "getPortfolio_Unauthenticated_ReturnsUnauthorized",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.ProfileAndPublicIdIntegrationTest",
+    "Test": "registerCreatesUserPublicIdWalletAndInitialLedger",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.ProfileAndPublicIdIntegrationTest",
+    "Test": "updateProfileReturnsRealWalletBalanceAndProtectsImmutableFields",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.ProfileAndPublicIdIntegrationTest",
+    "Test": "changePasswordRequiresCurrentPassword",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.ProfileAndPublicIdIntegrationTest",
+    "Test": "backfillFillsOnlyMissingIdsAndDatabaseEnforcesUniqueness",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.ProfileAndPublicIdIntegrationTest",
+    "Test": "backfillRetriesOnCollisionAndIdentifiesUsersWithoutWallet",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.ProfileAndPublicIdIntegrationTest",
+    "Test": "profileEndpointsRequireAuthAndCsrf",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.ReportIntegrationTest",
+    "Test": "tradingHistoryAndPortfolioReportsContainRealUserRecordsOnly",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.ReportIntegrationTest",
+    "Test": "reportEndpointsRequireAuthenticationAndValidFormat",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.ReportIntegrationTest",
+    "Test": "profileAndTransactionsReportsSecurityAndIsolation",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.StockControllerTest",
+    "Test": "getStockBySymbol_NotFound_Returns404",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.StockControllerTest",
+    "Test": "security_StocksPublic_UserMeStillProtected",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.StockControllerTest",
+    "Test": "getStockHistory_ReturnsChronologicalPrices",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.StockControllerTest",
+    "Test": "getStockBySymbol_Found_ReturnsStock",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.StockControllerTest",
+    "Test": "searchStocks_MatchesQuery",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.StockControllerTest",
+    "Test": "getAllStocks_ReturnsListWithSimulatedLabel",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.TradeControllerTest",
+    "Test": "getUserTrades_UserIsolationPreserved",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.TradeControllerTest",
+    "Test": "getUserTrades_EmptyHistory_ReturnsEmptyPage",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.TradeControllerTest",
+    "Test": "getUserTrades_NegativePageAndInvalidSize_HandledSafely",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.TradeControllerTest",
+    "Test": "getTradeById_OwnedByUser_ReturnsTrade",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.TradeControllerTest",
+    "Test": "getUserTrades_ValidCustomSort_OrdersCorrectly",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.TradeControllerTest",
+    "Test": "getUserTrades_PageSizeCappedAt100",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.TradeControllerTest",
+    "Test": "unauthenticated_TradeEndpoints_Return401",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.TradeControllerTest",
+    "Test": "getUserTrades_WithTrades_ReturnsPaginatedList",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.TradeControllerTest",
+    "Test": "getUserTrades_UnsafeSortField_FallsBackToExecutedAtDescSafely",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.TradeControllerTest",
+    "Test": "getTradeById_NotOwnedByUser_Returns404",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.WalletControllerTest",
+    "Test": "getTransactions_InvertedDateRange_ReturnsBadRequest",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.WalletControllerTest",
+    "Test": "getTransactions_Authenticated_ReturnsPaginatedHistory",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.WalletControllerTest",
+    "Test": "getTransactions_ValidDateRange_ReturnsOk",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.WalletControllerTest",
+    "Test": "getTransactions_EqualDates_ReturnsBadRequest",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.WalletControllerTest",
+    "Test": "getWallet_Unauthenticated_ReturnsUnauthorized",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.WalletControllerTest",
+    "Test": "getTransactions_FilterByTypeAndCategory_ReturnsMatchingSubset",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.WalletControllerTest",
+    "Test": "getTransactions_UserIsolation_DoesNotReturnOtherUserTransactions",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.WalletControllerTest",
+    "Test": "getTransactions_Unauthenticated_ReturnsUnauthorized",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.WalletControllerTest",
+    "Test": "getTransactions_Pagination_RespectsPageAndSize",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.WalletControllerTest",
+    "Test": "getWallet_Authenticated_ReturnsCorrectBalanceAndPayload",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.exception.GlobalExceptionHandlerTest",
+    "Test": "handleOptimisticLocking_Returns409Conflict",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.exception.GlobalExceptionHandlerTest",
+    "Test": "handleIdempotencyConflict_Returns409Conflict",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.exception.GlobalExceptionHandlerTest",
+    "Test": "handleLockTimeout_Returns503ServiceUnavailable",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.exception.GlobalExceptionHandlerTest",
+    "Test": "handleInsufficientBalance_Returns400BadRequest",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.exception.GlobalExceptionHandlerTest",
+    "Test": "handleDeadlock_Returns503ServiceUnavailable",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.model.HoldingTest",
+    "Test": "reopeningPosition_ResetsAverageCostPreservingPnl",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.model.HoldingTest",
+    "Test": "buyPrice_Boundaries",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.model.HoldingTest",
+    "Test": "sell_WithProfit",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.model.HoldingTest",
+    "Test": "multipleBuys_WeightedAverageCost",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.model.HoldingTest",
+    "Test": "applyBuy_AppliesCalculatedState",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.model.HoldingTest",
+    "Test": "zeroAndNegativeQuantities_Rejected",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.model.HoldingTest",
+    "Test": "sell_InsufficientQuantity_ThrowsException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.model.HoldingTest",
+    "Test": "failedCalculation_LeavesEntityUnchanged",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.model.HoldingTest",
+    "Test": "initialHolding_ZeroValues",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.model.HoldingTest",
+    "Test": "previewSell_ComputesCorrectState_WithoutMutatingOriginalHolding",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.model.HoldingTest",
+    "Test": "sell_WithLoss",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.model.HoldingTest",
+    "Test": "sellPrice_Boundaries",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.model.HoldingTest",
+    "Test": "previewSell_InsufficientQuantity_ThrowsException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.model.HoldingTest",
+    "Test": "firstBuy_InitializesPosition",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.model.HoldingTest",
+    "Test": "previewBuy_ComputesCorrectState_WithoutMutatingOriginalHolding",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.model.HoldingTest",
+    "Test": "previewBuy_IntegerOverflow_ThrowsArithmeticException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.model.HoldingTest",
+    "Test": "realizedPnl_Boundaries",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.model.HoldingTest",
+    "Test": "applySell_AppliesCalculatedState",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.model.HoldingTest",
+    "Test": "closePosition_RetainsCumulativeRealizedPnl",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.model.HoldingTest",
+    "Test": "quantityOverflow_ThrowsArithmeticException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.model.HoldingTest",
+    "Test": "constructorValidations",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.repository.HoldingRepositoryTest",
+    "Test": "findByUserId_RetrievesAllHoldingsForUser",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.repository.HoldingRepositoryTest",
+    "Test": "userIsolation_NoCrossUserLeakage",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.repository.HoldingRepositoryTest",
+    "Test": "findByUserIdAndStockId_Success",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.repository.HoldingRepositoryTest",
+    "Test": "findByUserIdAndQuantityGreaterThan_FiltersZeroQuantityPositions",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.CsvWriterTest",
+    "Test": "plainValuesAreUntouched",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.CsvWriterTest",
+    "Test": "writesBomHeaderAndCrlfRows",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.CsvWriterTest",
+    "Test": "quotesCommasAndNewlines",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.CsvWriterTest",
+    "Test": "neutralisesSpreadsheetFormulas",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderAutoExecutionTest",
+    "Test": "createSellOrder_WhenInsufficientShares_ThrowsExceptionAndRollsBackSettlement",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderAutoExecutionTest",
+    "Test": "createBuyOrder_WhenAutoExecuteEnabledAndAdaptersPresent_TransitionsToExecuted",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderAutoExecutionTest",
+    "Test": "createOrder_IdempotencyUnderAutoExecution_PreventsDuplicateSettlement",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderAutoExecutionTest",
+    "Test": "createBuyOrder_WhenInsufficientFunds_ThrowsExceptionAndRollsBackSettlement",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderAutoExecutionTest",
+    "Test": "createSellOrder_WhenAutoExecuteEnabledAndAdaptersPresent_TransitionsToExecuted",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderExecutionServiceTest",
+    "Test": "executeOrder_WhenPriceExceedsMaxPrecision_ThrowsIllegalStateException_BeforeWalletOrHoldingsMutations",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderExecutionServiceTest",
+    "Test": "executeOrder_InsufficientShares_ThrowsException_LeavesOrderPending",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderExecutionServiceTest",
+    "Test": "executeOrder_CrossUserOwnership_ThrowsResourceNotFoundException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderExecutionServiceTest",
+    "Test": "executeOrder_WhenTotalAmountExceedsMaxPrecision_ThrowsIllegalStateException_BeforeMutations",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderExecutionServiceTest",
+    "Test": "executeOrder_InsufficientFunds_ThrowsException_LeavesOrderPending",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderExecutionServiceTest",
+    "Test": "executeOrder_SellOrder_SuccessWithMockedAdapters",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderExecutionServiceTest",
+    "Test": "trade_UniqueConstraintOnOrderId_PreventsDuplicateTrades",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderExecutionServiceTest",
+    "Test": "executeOrder_BuyOrder_SuccessWithMockedAdapters",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderExecutionServiceTest",
+    "Test": "executeOrder_WhenAlreadyExecuted_ThrowsIllegalStateException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderExecutionWithoutAdaptersTest",
+    "Test": "applicationContext_StartsWithoutAdapters_AndExecutionFailsClosed",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderExecutionWithoutAdaptersTest",
+    "Test": "orderCreation_WhenAdaptersMissing_CreatesValidPendingOrderWithoutPretendingExecuted",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderServiceTest",
+    "Test": "createOrder_InvalidQuantity_ThrowsIllegalArgumentException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderServiceTest",
+    "Test": "getUserOrders_ReturnsOnlyUserOrdersInChronologicalReverse",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderServiceTest",
+    "Test": "createSellOrder_ValidRequest_CreatesPendingSellOrder",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderServiceTest",
+    "Test": "getUserOrderById_OwnershipIsolation_ThrowsNotFoundForOtherUser",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderServiceTest",
+    "Test": "createOrder_UnknownSymbol_ThrowsResourceNotFoundException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderServiceTest",
+    "Test": "orderEntity_LifecycleTransitions_CannotTransitionFromTerminal",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderServiceTest",
+    "Test": "createBuyOrder_ValidRequest_CreatesPendingOrderWithServerPrice",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderServiceTest",
+    "Test": "createOrder_ConcurrentDuplicateConstraintViolation_ThrowsDuplicateOrderException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderServiceTest",
+    "Test": "createOrder_DuplicateClientOrderId_ThrowsDuplicateOrderException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderServiceTest",
+    "Test": "createOrder_UnrelatedUniqueConstraintViolation_RethrowsDataIntegrityViolationException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderServiceTest",
+    "Test": "createOrder_UnrelatedDatabaseConstraintViolation_RethrowsDataIntegrityViolationException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PdfReportBuilderTest",
+    "Test": "unsupportedCharactersAndLongValuesDoNotBreakTheDocument",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PdfReportBuilderTest",
+    "Test": "paginatesRepeatsHeaderAndNumbersPages",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PortfolioServiceIntegrationTest",
+    "Test": "getPortfolio_AfterCompleteLiquidation_RetainsRealizedPnl",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PortfolioServiceIntegrationTest",
+    "Test": "getPortfolio_AfterPartialSell_ReflectsRealizedAndUnrealized",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PortfolioServiceIntegrationTest",
+    "Test": "getPortfolio_NewUser_AccurateInitialState",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PortfolioServiceIntegrationTest",
+    "Test": "getPortfolio_AfterBuy_ReflectsAccurateValuation",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PortfolioServiceIntegrationTest",
+    "Test": "getPortfolio_AfterMultipleBuys_TracksWeightedAverageCost",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PortfolioServiceIntegrationTest",
+    "Test": "getPortfolio_IncludeClosedToggle_LeavesSummaryMetricsInvariant",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PortfolioServiceIntegrationTest",
+    "Test": "getPortfolio_CrossUserIsolation",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PortfolioServiceUnitTest",
+    "Test": "getPortfolio_ProfitablePosition_ComputesPositiveGain",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PortfolioServiceUnitTest",
+    "Test": "getPortfolio_OneActiveHolding_ComputesCorrectMetrics",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PortfolioServiceUnitTest",
+    "Test": "getPortfolio_AlphabeticalOrdering",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PortfolioServiceUnitTest",
+    "Test": "getPortfolio_MissingWallet_ThrowsException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PortfolioServiceUnitTest",
+    "Test": "getPortfolio_EmptyPortfolio_ReturnsZeroMetricsAndEmptyList",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PortfolioServiceUnitTest",
+    "Test": "getPortfolio_BigDecimalPrecisionAndRounding",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PortfolioServiceUnitTest",
+    "Test": "getPortfolio_ClosedHolding_Filtering",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PortfolioServiceUnitTest",
+    "Test": "getPortfolio_MissingUser_ThrowsException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PortfolioServiceUnitTest",
+    "Test": "getPortfolio_MultipleHoldings_AggregatesAccurately",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PortfolioServiceUnitTest",
+    "Test": "getPortfolio_SummaryMetrics_InvariantUnderIncludeClosedToggle",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PortfolioServiceUnitTest",
+    "Test": "getPortfolio_LossMakingPosition_ComputesNegativeReturn",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PortfolioServiceUnitTest",
+    "Test": "getPortfolio_ZeroInvestedValue_ReturnsZeroPercentage",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PublicUserIdGeneratorTest",
+    "Test": "givesUpAfterBoundedAttempts",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PublicUserIdGeneratorTest",
+    "Test": "generatesSixDigitIds",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PublicUserIdGeneratorTest",
+    "Test": "retriesWhenCandidateIsTaken",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.StockServiceTest",
+    "Test": "stockPriceSimulator_CalculateNextPrice_HandlesInvalidAndNegativeChangeFactors",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.StockServiceTest",
+    "Test": "stockPriceSimulator_CalculateNextPrice_MultiDecimalAndInvalidChangeFactor_RoundsToTwoDecimals",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.StockServiceTest",
+    "Test": "getStockHistory_BoundedLimitAndChronological",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.StockServiceTest",
+    "Test": "createStockIfAbsent_ExistingStock_IdempotentAndDoesNotOverwritePrice",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.StockServiceTest",
+    "Test": "getStockHistory_IdenticalTimestamps_DeterministicSecondarySortByIdAndChronologicalOrder",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.StockServiceTest",
+    "Test": "stockPriceSimulator_CalculateNextPrice_OverCeilingAndInvalidChangeFactor_ClampsToCeiling",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.StockServiceTest",
+    "Test": "updateStockPrice_RoundingAndBoundaryValidation",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.StockServiceTest",
+    "Test": "createStockIfAbsent_NewStock_Success",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.StockServiceTest",
+    "Test": "searchStocks_BySymbolOrCompanyName",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.StockServiceTest",
+    "Test": "updateStockPrice_NegativeOrZeroPrice_ThrowsException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.StockServiceTest",
+    "Test": "createStockIfAbsent_RoundingAndBoundaryValidation",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.StockServiceTest",
+    "Test": "stockPriceSimulator_CalculateNextPrice_NeverExceedsCeiling",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.StockServiceTest",
+    "Test": "getStockBySymbol_UnknownSymbol_ThrowsResourceNotFoundException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.StockServiceTest",
+    "Test": "updateStockPrice_UpdatesPreviousAndCurrentAndAppendsHistory",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.StockServiceTest",
+    "Test": "stockPriceSimulator_CalculateNextPrice_SubFloorAndInvalidChangeFactor_ClampsToFloor",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.StockServiceTest",
+    "Test": "stockPriceSimulator_CalculateNextPrice_NeverBelowFloor",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.TradeSettlementIntegrationTest",
+    "Test": "concurrentBuyAndSell_RollsBackCleanlyWithoutPartialState",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.TradeSettlementIntegrationTest",
+    "Test": "userOwnership_EnforcedOnExecution",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.TradeSettlementIntegrationTest",
+    "Test": "concurrentBuyAndSell_ThreadSafety",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.TradeSettlementIntegrationTest",
+    "Test": "insufficientShares_RollsBackEverything",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.TradeSettlementIntegrationTest",
+    "Test": "portfolioValuation_UsesSimulatedPrices",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.TradeSettlementIntegrationTest",
+    "Test": "successfulSell_SettlesAtomically",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.TradeSettlementIntegrationTest",
+    "Test": "highCeilingPrice_AlignedAcrossEngineAndHoldings",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.TradeSettlementIntegrationTest",
+    "Test": "duplicateSettlement_CannotMutateTwice",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.TradeSettlementIntegrationTest",
+    "Test": "simultaneousFirstTimeBuy_EnforcesUniqueHoldingConstraintAndRollsBackFailedTransaction",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.TradeSettlementIntegrationTest",
+    "Test": "successfulBuy_SettlesAtomically",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.TradeSettlementIntegrationTest",
+    "Test": "insufficientWalletFunds_RollsBackEverything",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.UserServiceTest",
+    "Test": "registerUser_Success_PersistsBothUserAndWalletInH2",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.UserServiceTest",
+    "Test": "registerUser_WalletCreationFailure_RollsBackUserRegistration",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.WalletServiceTest",
+    "Test": "createWalletWithInitialBalance_CreatesWalletAndLedgerEntryWith100000INR",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.WalletServiceTest",
+    "Test": "existingWalletBalance_IsNotResetOrModified",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.WalletServiceTest",
+    "Test": "getWalletByUsername_ExistingUserWithWallet_ReturnsCorrectWallet",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.WalletServiceTest",
+    "Test": "createWalletWithInitialBalance_WhenWalletAlreadyExists_ThrowsIllegalStateException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.WalletServiceTest",
+    "Test": "getWalletByUsername_UserWithoutWallet_ThrowsIllegalStateException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.WalletTransactionServiceTest",
+    "Test": "executeDebit_InsufficientBalance_ThrowsExceptionAndLeavesBalanceUnchanged",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.WalletTransactionServiceTest",
+    "Test": "executeDebit_ValidRequest_DecreasesBalanceAndCreatesLedgerEntry",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.WalletTransactionServiceTest",
+    "Test": "executeDebit_IdempotentConflict_DifferentAmount_ThrowsIdempotencyConflictException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.WalletTransactionServiceTest",
+    "Test": "executeDebit_MissingWallet_ThrowsIllegalStateException_DoesNotCreateWallet",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.WalletTransactionServiceTest",
+    "Test": "executeDebit_IdempotentConflict_DifferentCategory_ThrowsIdempotencyConflictException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.WalletTransactionServiceTest",
+    "Test": "executeDebit_CalledInsideActiveTransaction_ThrowsIllegalStateException",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.WalletTransactionServiceTest",
+    "Test": "executeCredit_ValidRequest_IncreasesBalanceAndCreatesLedgerEntry",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.WalletTransactionServiceTest",
+    "Test": "concurrentDuplicateRequests_SameReferenceId_ExactlyOneLedgerEntryPersisted",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.WalletTransactionServiceTest",
+    "Test": "executeCredit_IdempotentReplay_ReturnsExistingTransactionWithoutDoubleCredit",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.WalletTransactionServiceTest",
+    "Test": "executeDebit_IdempotentReplay_ReturnsExistingTransactionWithoutDoubleDebit",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.WalletTransactionServiceTest",
+    "Test": "getTransactionHistory_DateFiltering_RespectsHalfOpenInterval",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.WalletTransactionServiceTest",
+    "Test": "concurrentDebits_CompeteForInsufficientBalance_CannotProduceNegativeBalance",
+    "Status": "PASS"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.StockTradingSimulatorApplicationTests",
+    "Test": "contextLoads",
+    "Status": "PASS"
+  }
+]

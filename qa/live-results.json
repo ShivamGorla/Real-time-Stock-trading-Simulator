@@ -1,0 +1,336 @@
+{
+  "baseURL": "http://127.0.0.1:18080",
+  "database": "stocksim_smoke_test",
+  "results": [
+    {
+      "name": "Real browser registration, login, session and initial wallet",
+      "status": "PASS",
+      "evidence": {
+        "initialBalance": 100000,
+        "initialLedgerRows": 1,
+        "disposableTestAccount": true
+      }
+    },
+    {
+      "name": "Stock search, live chart, genuine empty portfolio and keyboard access",
+      "status": "PASS"
+    },
+    {
+      "name": "Browser top-up credits wallet and exactly one ledger/payment row",
+      "status": "PASS"
+    },
+    {
+      "name": "BUY cancellation and confirmed BUY INFY; holdings/WAC/equity reconcile with SQL",
+      "status": "PASS",
+      "evidence": {
+        "executionPrice": 1922.08,
+        "walletBalance": 97155.84,
+        "quantity": 2
+      }
+    },
+    {
+      "name": "Confirmed SELL INFY updates realized/unrealized P&L and SQL balance",
+      "status": "PASS",
+      "evidence": {
+        "executionPrice": 1922.08,
+        "walletBalance": 99077.92,
+        "realizedPnl": 0,
+        "unrealizedPnl": 0
+      }
+    },
+    {
+      "name": "All eight report downloads have correct content, headers and browser delivery",
+      "status": "PASS",
+      "evidence": [
+        {
+          "report": "profile",
+          "format": "csv",
+          "bytes": 211,
+          "status": 200
+        },
+        {
+          "report": "profile",
+          "format": "pdf",
+          "bytes": 1325,
+          "status": 200
+        },
+        {
+          "report": "transactions",
+          "format": "csv",
+          "bytes": 107,
+          "status": 200
+        },
+        {
+          "report": "transactions",
+          "format": "pdf",
+          "bytes": 1281,
+          "status": 200
+        },
+        {
+          "report": "trading-history",
+          "format": "csv",
+          "bytes": 145,
+          "status": 200
+        },
+        {
+          "report": "trading-history",
+          "format": "pdf",
+          "bytes": 1312,
+          "status": 200
+        },
+        {
+          "report": "portfolio",
+          "format": "csv",
+          "bytes": 103,
+          "status": 200
+        },
+        {
+          "report": "portfolio",
+          "format": "pdf",
+          "bytes": 1291,
+          "status": 200
+        }
+      ]
+    },
+    {
+      "name": "Real HTTP CSRF, duplicates, invalid quantity, rollback, idempotent top-up and pagination",
+      "status": "PASS"
+    },
+    {
+      "name": "Authenticated cross-user isolation and unauthenticated report denial",
+      "status": "PASS"
+    },
+    {
+      "name": "Live MySQL concurrent same-key and distinct-key top-ups credit exactly once",
+      "status": "PASS",
+      "evidence": {
+        "concurrentCredits": 350,
+        "sameKeyReplay": "one credit",
+        "duplicateLedgerReferences": 0,
+        "statuses": [
+          200,
+          200,
+          409,
+          200
+        ]
+      }
+    },
+    {
+      "name": "Profile update and password change use authenticated session; relogin succeeds",
+      "status": "PASS"
+    }
+  ],
+  "httpResponses": [
+    {
+      "method": "POST",
+      "path": "/api/auth/register",
+      "status": 201
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/me",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stocks",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/orders",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/portfolio",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stocks/INFY/history",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/payments/top-up",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/orders",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/me",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/portfolio",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/orders/buy",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/api/stocks",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/orders",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/portfolio",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stocks/INFY/history",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/orders/sell",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/api/stocks",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/portfolio",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/orders",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stocks/INFY/history",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/reports/profile",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/reports/profile",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/reports/transactions",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/reports/transactions",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/reports/trading-history",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/reports/trading-history",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/reports/portfolio",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/reports/portfolio",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/assistant/chat",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/logout",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/me",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stocks",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/portfolio",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/orders",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stocks/INFY/history",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/logout",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "status": 200
+    }
+  ],
+  "exceptions": [],
+  "consoleErrors": [],
+  "ai": {
+    "status": "BLOCKED",
+    "httpStatus": 200,
+    "errorCode": "LLM_AUTHENTICATION_ERROR",
+    "toolsUsed": [],
+    "financialStateUnchanged": true,
+    "reason": "Live provider did not return a successful answer; no live AI success claimed."
+  },
+  "sqlFinal": "99527.92\t1\t1922.080000\t0.00\t4\t2\t8"
+}

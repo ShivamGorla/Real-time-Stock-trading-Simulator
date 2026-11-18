@@ -56,6 +56,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (registerForm) {
         registerForm.addEventListener('submit', function (e) {
             e.preventDefault();
+            if (registerForm.querySelector('[type="submit"]').disabled) return;
             var errorDiv = document.getElementById('form-error');
             hideAlert(errorDiv);
 
@@ -119,6 +120,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         loginForm.addEventListener('submit', function (e) {
             e.preventDefault();
+            if (loginForm.querySelector('[type="submit"]').disabled) return;
             var errorDiv = document.getElementById('form-error');
             hideAlert(errorDiv);
 
@@ -147,10 +149,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     showAlert(errorDiv, 'Please verify your email first. Check your inbox for the link, or request a new one from the Forgot password page.');
                     pass.value = '';
                     setBusy(btn, false);
-                } else {
+                } else if (res.status === 401) {
                     showAlert(errorDiv, 'That username and password don’t match. Check both and try again.');
                     pass.value = '';
                     pass.focus();
+                    setBusy(btn, false);
+                } else {
+                    showAlert(errorDiv, 'Sign in is unavailable (HTTP ' + res.status + '). Please try again.');
                     setBusy(btn, false);
                 }
             }).catch(function () {
@@ -176,11 +181,11 @@ document.addEventListener('DOMContentLoaded', function () {
             return (name || '?').trim().split(/\s+/).slice(0, 2).map(function (p) { return p.charAt(0).toUpperCase(); }).join('');
         }
 
-        fetch('/api/user/me', { headers: { 'X-XSRF-TOKEN': getCsrfToken() } })
+        StockSim.currentUser = fetch('/api/user/me', { headers: { 'X-XSRF-TOKEN': getCsrfToken() } })
             .then(function (res) {
                 if (!res.ok) {
-                    window.location.href = '/login.html';
-                    throw new Error('Not authenticated');
+                    if (res.status === 401) window.location.href = '/login.html';
+                    throw new Error('Could not load your account. Refresh to try again.');
                 }
                 return res.json();
             })
@@ -196,13 +201,29 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (pid) pid.textContent = user.publicUserId || 'Not assigned';
                 var ev = document.getElementById('user-email-status');
                 if (ev) ev.textContent = user.emailVerified ? 'Verified' : 'Not verified';
+                var profileName = document.getElementById('profile-name');
+                if (profileName) profileName.value = user.name;
+                return user;
             })
-            .catch(function () { /* redirected above, or network error leaves skeletons */ });
+            .catch(function (err) {
+                document.getElementById('user-name').textContent = 'Account unavailable';
+                var alert = document.getElementById('tools-alert');
+                if (alert) { alert.textContent = err.message; alert.className = 'alert alert-error'; alert.hidden = false; }
+                return null;
+            });
 
         function logout(e) {
             e.preventDefault();
             fetch('/api/auth/logout', { method: 'POST', headers: { 'X-XSRF-TOKEN': getCsrfToken() } })
-                .finally(function () { window.location.href = '/'; });
+                .then(function (res) {
+                    if (!res.ok) throw new Error('Sign out failed. Please try again.');
+                    window.location.href = '/';
+                }).catch(function (err) {
+                    var alert = document.getElementById('tools-alert');
+                    alert.textContent = err.message || 'Could not sign out. Check your connection and try again.';
+                    alert.className = 'alert alert-error'; alert.hidden = false;
+                    alert.scrollIntoView({ block: 'center' });
+                });
         }
         document.getElementById('logout-btn').addEventListener('click', logout);
         var smBtn = document.getElementById('logout-btn-sm');

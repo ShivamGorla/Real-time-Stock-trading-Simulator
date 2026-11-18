@@ -9,14 +9,12 @@
         if (!workspace) return;
 
         const $ = (id) => document.getElementById(id);
-        const fmt = (value) => new Intl.NumberFormat('en-IN', {
-            style: 'currency', currency: 'INR', minimumFractionDigits: 2, maximumFractionDigits: 2
-        }).format(Number(value) || 0);
+        const fmt = StockSim.formatINR;
         const num = (value) => Number(value) || 0;
         const state = {
             stocks: [], symbol: null, side: 'BUY', range: '1D',
             history: [], portfolio: null, orders: [], pending: null,
-            submitting: false, activeHistoryRequest: 0, alive: true
+            submitting: false, activeHistoryRequest: 0, alive: true, identityReady: false
         };
         const ids = {
             search: $('market-search'), list: $('market-stock-list'), marketCount: $('market-count'),
@@ -38,10 +36,25 @@
             portfolioError: $('portfolio-loading-error'),
             refresh: $('trading-refresh'),
             invested: $('live-invested'), pnl: $('live-pnl'), positions: $('live-positions'),
+            equity: $('live-equity'), realized: $('live-realized'), unrealized: $('live-unrealized'),
             cash: $('user-balance')
         };
         const POLL_MS = 15000;
         let refreshInProgress = false;
+        let accountsRequest = null;
+        let historyController = null;
+        let pendingStorageKey = null;
+        let listSignature = '', portfolioSignature = '', ordersSignature = '';
+        let searchTimer;
+
+        function savePending(pending) {
+            state.pending = pending;
+            ids.orderRetry.hidden = !pending;
+            try {
+                if (pending) sessionStorage.setItem(pendingStorageKey, JSON.stringify(pending));
+                else sessionStorage.removeItem(pendingStorageKey);
+            } catch (_) { /* In-page idempotency remains available if storage is blocked. */ }
+        }
 
         function el(tag, className, text) {
             const node = document.createElement(tag);
@@ -73,7 +86,11 @@
                 headers['Content-Type'] = 'application/json';
                 headers['X-XSRF-TOKEN'] = csrfToken();
             }
-            const response = await fetch(url, Object.assign({ credentials: 'same-origin' }, options, { headers }));
+            const controller = new AbortController();
+            const timeout = window.setTimeout(() => controller.abort(), 15000);
+            const signal = options.signal || controller.signal;
+            try {
+            const response = await fetch(url, Object.assign({ credentials: 'same-origin' }, options, { headers, signal }));
             let body;
             const text = await response.text();
             try { body = text ? JSON.parse(text) : null; } catch (_) { body = null; }
@@ -85,7 +102,9 @@
                 if (response.status === 403) error.message = 'Request denied. Refresh the page and try again.';
                 throw error;
             }
+            if (text && body === null) throw new Error('Unexpected server response. Check order status before retrying.');
             return body;
+            } finally { window.clearTimeout(timeout); }
         }
         function selectedStock() { return state.stocks.find(s => s.symbol === state.symbol) || null; }
         function selectedHolding() {
@@ -102,9 +121,13 @@
             const sign = delta >= 0 ? '+' : '−';
             return `${sign}${fmt(Math.abs(delta))} (${sign}${Math.abs(percent).toFixed(2)}%)`;
         }
-        function setText(node, value) { if (node) node.textContent = value; }
+        function setText(node, value) { if (node && node.textContent !== value) node.textContent = value; }
         function renderMarketList() {
             const query = (ids.search.value || '').trim().toLowerCase();
+            const signature = JSON.stringify([query, state.symbol, state.stocks]);
+            if (signature === listSignature) return;
+            listSignature = signature;
+            const focusedSymbol = ids.list.contains(document.activeElement) ? document.activeElement.dataset.symbol : null;
             const list = state.stocks.filter(s =>
                 String(s.symbol || '').toLowerCase().includes(query) ||
                 String(s.companyName || '').toLowerCase().includes(query)
@@ -119,6 +142,7 @@
             list.forEach(stock => {
                 const btn = el('button', 'market-stock-row' + (state.symbol === stock.symbol ? ' is-selected' : ''));
                 btn.type = 'button';
+                btn.dataset.symbol = stock.symbol;
                 btn.setAttribute('aria-pressed', String(state.symbol === stock.symbol));
                 const top = el('span', 'market-stock-top');
                 top.append(el('strong', '', stock.symbol), el('span', '', fmt(stock.currentPrice)));
@@ -131,6 +155,7 @@
                 btn.addEventListener('click', () => selectStock(stock.symbol));
                 ids.list.appendChild(btn);
             });
+            if (focusedSymbol) Array.from(ids.list.children).find(node => node.dataset.symbol === focusedSymbol)?.focus({ preventScroll: true });
         }
         function renderSelection() {
             const stock = selectedStock();
@@ -208,12 +233,16 @@
         async function loadHistory() {
             const requestNo = ++state.activeHistoryRequest;
             const symbol = state.symbol;
+            if (historyController) historyController.abort();
             if (!symbol) return;
+            const controller = new AbortController();
+            historyController = controller;
+            const timeout = window.setTimeout(() => controller.abort(), 15000);
             ids.chartEmpty.textContent = 'Loading price history…';
             ids.chartEmpty.hidden = false;
             try {
                 // Backend returns at most its configured bound; use live simulated history only.
-                const data = await request(`/api/stocks/${encodeURIComponent(symbol)}/history?limit=200`);
+                const data = await request(`/api/stocks/${encodeURIComponent(symbol)}/history?limit=200`, { signal: controller.signal });
                 if (requestNo !== state.activeHistoryRequest) return;
                 state.history = Array.isArray(data) ? data : [];
                 ids.chartEmpty.textContent = 'No simulated price history in this timeframe. Try All.';
@@ -224,14 +253,21 @@
                 renderChart();
                 ids.chartEmpty.textContent = 'Could not load simulated price history.';
                 marketNotice(err.message || 'Chart unavailable.', true);
-            }
+            } finally { window.clearTimeout(timeout); }
         }
         function renderPortfolio() {
             const p = state.portfolio;
             if (!p) return;
+            const { generatedAt, ...snapshot } = p;
+            const signature = JSON.stringify(snapshot);
+            if (signature === portfolioSignature) return;
+            portfolioSignature = signature;
             setText(ids.cash, fmt(p.walletBalance));
             setText(ids.invested, fmt(p.totalInvestedValue));
             setText(ids.pnl, fmt(p.totalPnl));
+            setText(ids.equity, fmt(p.totalAccountEquity));
+            setText(ids.realized, fmt(p.totalRealizedPnl));
+            setText(ids.unrealized, fmt(p.totalUnrealizedPnl));
             ids.pnl.className = num(p.totalPnl) >= 0 ? 'is-gain' : 'is-loss';
             const open = (p.holdings || []).filter(h => num(h.quantity) > 0);
             setText(ids.positions, String(open.length));
@@ -254,6 +290,9 @@
             updateEstimate();
         }
         function renderOrders() {
+            const signature = JSON.stringify(state.orders);
+            if (signature === ordersSignature) return;
+            ordersSignature = signature;
             ids.ordersBody.replaceChildren();
             const orders = state.orders.slice().sort((a, b) => {
                 const timeDiff = new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
@@ -300,7 +339,7 @@
             setText(ids.orderEstimated, valid ? fmt(estimate) : '—');
             setText(ids.orderBalance, state.portfolio ? fmt(state.portfolio.walletBalance) : '—');
             setText(ids.orderHeld, String(selectedHolding()?.quantity || 0));
-            ids.orderSubmit.disabled = !valid || state.submitting;
+            ids.orderSubmit.disabled = !valid || state.submitting || !state.identityReady;
         }
         function generateUUID() {
             if (globalThis.crypto?.randomUUID) return crypto.randomUUID();
@@ -311,15 +350,16 @@
         }
         async function reconcilePending() {
             if (!state.pending) return false;
+            const pendingId = state.pending.id;
             const orders = await request('/api/orders');
             if (Array.isArray(orders)) {
                 state.orders = orders;
                 renderOrders();
-                const found = orders.find(o => o.clientOrderId === state.pending.id);
+                const found = orders.find(o => o.clientOrderId === pendingId);
                 if (found) {
-                    feedback(`${found.side} ${found.quantity} ${found.symbol}: order ${found.status}. No duplicate submitted.`, true);
-                    state.pending = null;
-                    await refreshAccounts();
+                    feedback(`${found.side} ${found.quantity} ${found.symbol}: order ${found.status}. No duplicate submitted.`, found.status === 'EXECUTED');
+                    if (state.pending?.id === pendingId) savePending(null);
+                    await refreshSettledAccounts();
                     return true;
                 }
             }
@@ -327,7 +367,7 @@
         }
         async function submitOrder(event) {
             event.preventDefault();
-            if (state.submitting) return;
+            if (state.submitting || !state.identityReady) return;
             let details;
             try { details = orderFormData(); } catch (err) { feedback(err.message, false); return; }
             const stock = selectedStock();
@@ -348,17 +388,18 @@
                     throw new Error('A previous order is unresolved. Restore its details and retry before changing your order.');
                 }
                 if (state.pending && await reconcilePending()) return;
-                if (!state.pending) state.pending = { id: generateUUID(), fingerprint };
+                if (!state.pending) savePending({ id: generateUUID(), fingerprint });
                 const result = await request(details.side === 'BUY' ? '/api/orders/buy' : '/api/orders/sell', {
                     method: 'POST',
                     body: JSON.stringify({ clientOrderId: state.pending.id, symbol: details.symbol, quantity: details.quantity })
                 });
-                state.pending = null;
+                if (!result || !result.status) throw new Error('Order status was not returned. Check previous order before retrying.');
+                savePending(null);
                 feedback(`${details.side} ${details.quantity} ${details.symbol}: ${result.status}. ${result.status === 'EXECUTED' ? 'Portfolio updated.' : 'Order created; check status before assuming execution.'}`, true);
-                await Promise.allSettled([refreshAccounts(), loadStocks(true)]);
+                await Promise.allSettled([refreshSettledAccounts(), loadStocks(true)]);
             } catch (err) {
-                // 400/401/403 are definitive failures; a 409 can indicate an existing idempotent order.
-                if ([400, 401, 403, 422].includes(err.status)) state.pending = null;
+                // 422 can leave a committed PENDING order after settlement rollback. Reconcile it too.
+                if ([400, 401, 403, 404].includes(err.status)) savePending(null);
                 feedback(err.message || 'Could not confirm the order. Review recent orders before trying again.', false);
                 ids.orderRetry.hidden = !state.pending;
             } finally {
@@ -366,7 +407,17 @@
                 updateEstimate();
             }
         }
-        async function refreshAccounts() {
+        function refreshAccounts() {
+            if (accountsRequest) return accountsRequest;
+            accountsRequest = loadAccounts().finally(() => { accountsRequest = null; });
+            return accountsRequest;
+        }
+        async function refreshSettledAccounts() {
+            // An in-flight poll may contain a snapshot from before the financial mutation.
+            if (accountsRequest) await accountsRequest;
+            await refreshAccounts();
+        }
+        async function loadAccounts() {
             const responses = await Promise.allSettled([request('/api/portfolio'), request('/api/orders')]);
             if (responses[0].status === 'fulfilled') {
                 state.portfolio = responses[0].value;
@@ -388,12 +439,18 @@
             if (!Array.isArray(data)) throw new Error('The server returned an unexpected stock catalog.');
             state.stocks = data.filter(s => s && typeof s.symbol === 'string');
             const previous = state.symbol;
-            state.symbol = null;
             if (state.stocks.length) {
                 const preferred = preserveSelection && state.stocks.some(s => s.symbol === previous) ? previous :
                     state.stocks.some(s => s.symbol === 'INFY') ? 'INFY' : state.stocks[0].symbol;
-                selectStock(preferred);
+                if (state.symbol === preferred) {
+                    renderMarketList(); renderSelection();
+                    await loadHistory();
+                } else {
+                    selectStock(preferred);
+                }
             } else {
+                state.symbol = null; state.history = []; ++state.activeHistoryRequest;
+                if (historyController) historyController.abort();
                 renderMarketList(); renderSelection(); renderChart();
             }
             setText(ids.status, `Simulated stock catalog · ${state.stocks.length} symbols`);
@@ -414,7 +471,10 @@
                 ids.refresh.disabled = false;
             }
         }
-        ids.search.addEventListener('input', renderMarketList);
+        ids.search.addEventListener('input', () => {
+            window.clearTimeout(searchTimer);
+            searchTimer = window.setTimeout(renderMarketList, 120);
+        });
         ids.orderQty.addEventListener('input', updateEstimate);
         ids.orderForm.addEventListener('submit', submitOrder);
         ids.orderRetry.addEventListener('click', async () => {
@@ -438,14 +498,32 @@
             });
         });
         ids.refresh.addEventListener('click', refreshAll);
+        document.addEventListener('walletchange', refreshSettledAccounts);
         // Profile.js updates wallet after top-up; refresh totals when the user returns or tops up.
         document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshAll(); });
         window.addEventListener('focus', () => { if (!document.hidden) refreshAll(); });
         document.addEventListener('themechange', renderChart);
         setSide('BUY');
         updateEstimate();
-        refreshAll();
-        const pollId = window.setInterval(() => { if (!document.hidden) refreshAll(); }, POLL_MS);
+        StockSim.currentUser.then(user => {
+            if (!user) return;
+            pendingStorageKey = 'stocksim.pendingOrder.' + user.id;
+            try {
+                const pending = JSON.parse(sessionStorage.getItem(pendingStorageKey));
+                if (pending && typeof pending.id === 'string' && typeof pending.fingerprint === 'string') savePending(pending);
+            } catch (_) { /* No usable pending order. */ }
+            state.identityReady = true;
+            updateEstimate();
+            if (state.pending) feedback('A previous order needs verification. Check previous order before placing another.', false);
+            refreshAll();
+        });
+        let pollId = window.setInterval(() => { if (!document.hidden) refreshAll(); }, POLL_MS);
         window.addEventListener('pagehide', () => { state.alive = false; window.clearInterval(pollId); });
+        window.addEventListener('pageshow', event => {
+            if (!event.persisted) return;
+            state.alive = true;
+            pollId = window.setInterval(() => { if (!document.hidden) refreshAll(); }, POLL_MS);
+            refreshAll();
+        });
     });
 }());

@@ -1,0 +1,21 @@
+{
+  "edge": {
+    "status": "PASS",
+    "version": "157.0.4341.60",
+    "checks": 31
+  },
+  "firefox": {
+    "status": "BLOCKED",
+    "version": "159.0 (Playwright build 1572)",
+    "reason": "Browser launch failed on this Windows host: browserType.launch: spawn UNKNOWN. No Firefox application tests ran."
+  },
+  "webkit": {
+    "status": "NOT_RUN",
+    "reason": "No installed WebKit browser runtime."
+  },
+  "opera": {
+    "status": "PASS",
+    "chromiumVersion": "155.0.8059.85",
+    "checks": 31
+  }
+}

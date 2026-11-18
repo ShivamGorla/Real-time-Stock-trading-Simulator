@@ -1,0 +1,268 @@
+[
+  {
+    "Suite": "com.stocktrading.simulator.adapter.JpaHoldingsAdapterTest",
+    "Tests": "10",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.adapter.JpaWalletAdapterTest",
+    "Tests": "10",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.adapter.JpaWalletTopUpAdapterTest",
+    "Tests": "4",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.assistant.controller.AssistantControllerAndAgentIntegrationTest",
+    "Tests": "4",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.assistant.service.AssistantClientAndMemoryUnitTest",
+    "Tests": "8",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.assistant.tool.AssistantToolsIntegrationTest",
+    "Tests": "5",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.config.SecurityPolicyRegressionTest",
+    "Tests": "3",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.AuthControllerTest",
+    "Tests": "6",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.EmailAuthIntegrationTest",
+    "Tests": "2",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.EmailVerificationRequiredIntegrationTest",
+    "Tests": "1",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.HealthControllerTest",
+    "Tests": "1",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.OrderControllerTest",
+    "Tests": "13",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.OrderHttpAutoExecutionIntegrationTest",
+    "Tests": "4",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.PaymentTopUpIntegrationTest",
+    "Tests": "8",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.PortfolioControllerTest",
+    "Tests": "5",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.ProfileAndPublicIdIntegrationTest",
+    "Tests": "6",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.ReportIntegrationTest",
+    "Tests": "3",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.StockControllerTest",
+    "Tests": "6",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.TradeControllerTest",
+    "Tests": "10",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.controller.WalletControllerTest",
+    "Tests": "10",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.exception.GlobalExceptionHandlerTest",
+    "Tests": "5",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.model.HoldingTest",
+    "Tests": "21",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.repository.HoldingRepositoryTest",
+    "Tests": "4",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.CsvWriterTest",
+    "Tests": "4",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderAutoExecutionTest",
+    "Tests": "5",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderExecutionServiceTest",
+    "Tests": "9",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderExecutionWithoutAdaptersTest",
+    "Tests": "2",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.OrderServiceTest",
+    "Tests": "11",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PdfReportBuilderTest",
+    "Tests": "2",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PortfolioServiceIntegrationTest",
+    "Tests": "7",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PortfolioServiceUnitTest",
+    "Tests": "12",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.PublicUserIdGeneratorTest",
+    "Tests": "3",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.StockServiceTest",
+    "Tests": "16",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.TradeSettlementIntegrationTest",
+    "Tests": "11",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.UserServiceTest",
+    "Tests": "2",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.WalletServiceTest",
+    "Tests": "5",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.service.WalletTransactionServiceTest",
+    "Tests": "12",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  },
+  {
+    "Suite": "com.stocktrading.simulator.StockTradingSimulatorApplicationTests",
+    "Tests": "1",
+    "Failures": "0",
+    "Errors": "0",
+    "Skipped": "0"
+  }
+]

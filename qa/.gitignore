@@ -1,0 +1,5 @@
+# Local-only QA evidence; reviewed summaries are staged explicitly.
+logs/
+screenshots/
+final-validation.json
+git-status.txt

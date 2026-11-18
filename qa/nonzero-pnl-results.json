@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "database": "stocksim_smoke_test",
+  "naturalPrices": true,
+  "tradingCalculationsChanged": false,
+  "buyPrice": 1843.53,
+  "observedPriceBeforeSell": 1848.77,
+  "sellPrice": 1848.77,
+  "quantitySold": 1,
+  "expectedRealizedPnl": 5.24,
+  "portfolioRealizedPnl": 5.24,
+  "displayedRealizedPnl": "₹5.24",
+  "sqlRealizedPnl": 5.24,
+  "sqlWalletBalance": 100005.24,
+  "uncaughtExceptions": []
+}

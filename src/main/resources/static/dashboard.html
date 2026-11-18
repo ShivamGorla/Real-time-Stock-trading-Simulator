@@ -137,22 +137,25 @@
             <div>
                 <section class="panel" aria-labelledby="balance-title">
                     <div class="panel-head"><h2 id="balance-title">Account value</h2><span class="tag-soon">Virtual money</span></div>
-                    <dl class="balance">
-                        <div class="balance-main">
+                    <div class="balance">
+                        <dl class="balance-main">
                             <dt>Cash available</dt>
                             <dd id="user-balance"><span class="skeleton">₹1,00,000.00</span></dd>
-                        </div>
-                        <div class="balance-sub">
+                        </dl>
+                        <dl class="balance-sub">
                             <div><dt>Invested</dt><dd id="live-invested">—</dd></div>
                             <div><dt>Total profit or loss</dt><dd id="live-pnl">—</dd></div>
                             <div><dt>Open positions</dt><dd id="live-positions">—</dd></div>
-                        </div>
-                    </dl>
+                            <div><dt>Account equity</dt><dd id="live-equity">-</dd></div>
+                            <div><dt>Realized P&amp;L</dt><dd id="live-realized">-</dd></div>
+                            <div><dt>Unrealized P&amp;L</dt><dd id="live-unrealized">-</dd></div>
+                        </dl>
+                    </div>
                 </section>
 
                 <section class="panel holdings" aria-labelledby="holdings-title" id="portfolio-panel">
                     <div class="panel-head"><h2 id="holdings-title">Your holdings</h2><span class="market-muted">Live portfolio</span></div>
-                    <div class="market-table-wrap">
+                    <div class="market-table-wrap" tabindex="0" role="region" aria-label="Holdings table">
                         <table class="table">
                             <thead><tr><th scope="col">Stock</th><th scope="col" class="r">Qty</th><th scope="col" class="r">Avg cost</th><th scope="col" class="r">Unrealized P&amp;L</th></tr></thead>
                             <tbody id="live-holdings-body"></tbody>
@@ -163,7 +166,7 @@
                 </section>
                 <section class="panel market-order-history" aria-labelledby="live-orders-title">
                     <div class="panel-head"><h2 id="live-orders-title">Recent orders</h2><span class="market-muted">Last 8</span></div>
-                    <div class="market-table-wrap">
+                    <div class="market-table-wrap" tabindex="0" role="region" aria-label="Recent orders table">
                         <table class="table">
                             <thead><tr><th scope="col">Stock</th><th scope="col">Side</th><th scope="col" class="r">Qty</th><th scope="col" class="r">Price</th><th scope="col" class="r">Status</th></tr></thead>
                             <tbody id="live-orders-body"></tbody>
@@ -186,7 +189,7 @@
                             <button type="button" class="btn btn-quiet" data-assistant-prompt="Preview buying 5 shares of INFY">Preview buying 5 shares of INFY</button>
                         </div>
 
-                        <div id="assistant-messages" class="chat-log" role="log" aria-live="polite"></div>
+                        <div id="assistant-messages" class="chat-log" role="log" aria-live="polite" tabindex="0" aria-label="Assistant conversation"></div>
                         <p id="assistant-loading" class="field-hint" hidden>Assistant is thinking…</p>
                         <div id="assistant-error" class="alert alert-error" role="alert" hidden></div>
 
