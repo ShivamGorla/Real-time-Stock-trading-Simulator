@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/trading-dashboard.css">
     <script src="/js/theme.js"></script>
 </head>
 <body>
@@ -22,8 +23,8 @@
         </a>
         <nav class="nav" id="site-nav" aria-label="Main">
             <a href="/dashboard.html" aria-current="page">Dashboard</a>
-            <span class="nav-soon" aria-disabled="true">Market <span class="tag-soon">Soon</span></span>
-            <span class="nav-soon" aria-disabled="true">Portfolio <span class="tag-soon">Soon</span></span>
+            <a href="#market-workspace">Market</a>
+            <a href="#portfolio-panel">Portfolio</a>
         </nav>
         <div class="header-actions">
             <span class="user-chip"><span class="avatar" id="user-initials" aria-hidden="true">&nbsp;</span><span class="user-name" id="user-chip-name"></span></span>
@@ -49,6 +50,89 @@
             <button type="button" class="btn btn-quiet" id="logout-btn-sm" hidden>Sign out</button>
         </div>
 
+        <!-- Live server-backed market and trading workspace (never mock data) -->
+        <section id="market-workspace" class="market-workspace" aria-labelledby="market-workspace-title">
+            <div class="market-section-head">
+                <div>
+                    <h2 id="market-workspace-title">Live trading workspace</h2>
+                    <p class="market-muted">Server-simulated Indian stocks · Virtual funds · No real exchange orders</p>
+                </div>
+                <div class="market-update-controls">
+                    <span id="trading-status" class="market-muted">Connecting to market…</span>
+                    <button type="button" id="trading-refresh" class="btn btn-secondary">Refresh data</button>
+                </div>
+            </div>
+            <div id="market-banner" class="market-banner" role="status" hidden></div>
+            <div class="market-layout">
+                <section class="market-card market-card-pad" aria-label="Available stocks">
+                    <h3 class="market-card-heading">Stock watchlist</h3>
+                    <label class="skip-link" for="market-search">Search stocks</label>
+                    <input id="market-search" class="market-search" type="search" placeholder="Search symbol or company…" autocomplete="off">
+                    <p class="market-muted" id="market-count" style="margin-top:8px">Loading stocks…</p>
+                    <div id="market-stock-list" class="market-list" role="group" aria-label="Select a stock"></div>
+                </section>
+                <section class="market-card market-card-pad" aria-labelledby="market-selected-symbol">
+                    <div class="market-selected-head">
+                        <div>
+                            <h3 id="market-selected-symbol">Select a stock</h3>
+                            <p class="market-muted" id="market-selected-company">Loading data…</p>
+                        </div>
+                        <span class="tag-soon">Simulated prices</span>
+                    </div>
+                    <div id="market-selected-price" class="market-quote">—</div>
+                    <div id="market-selected-change" class="market-change">—</div>
+                    <div class="market-range-controls" role="group" aria-label="Price history timeframe">
+                        <button type="button" class="market-pill is-active" data-market-range="1D" aria-pressed="true">1D</button>
+                        <button type="button" class="market-pill" data-market-range="1W" aria-pressed="false">1W</button>
+                        <button type="button" class="market-pill" data-market-range="1M" aria-pressed="false">1M</button>
+                        <button type="button" class="market-pill" data-market-range="ALL" aria-pressed="false">All</button>
+                    </div>
+                    <div class="market-chart-area">
+                        <svg id="market-chart" viewBox="0 0 720 240" preserveAspectRatio="none" role="img" aria-label="Historical simulated price chart">
+                            <g class="market-chart-grid">
+                                <line x1="16" x2="704" y1="50" y2="50"/><line x1="16" x2="704" y1="102" y2="102"/>
+                                <line x1="16" x2="704" y1="154" y2="154"/><line x1="16" x2="704" y1="206" y2="206"/>
+                            </g>
+                            <path id="market-chart-area" d=""/><path id="market-chart-line" d=""/>
+                            <circle id="market-chart-dot" r="0"/>
+                        </svg>
+                        <div id="market-chart-empty" class="market-chart-empty">Waiting for simulated price updates…</div>
+                    </div>
+                    <div class="market-chart-legend"><span id="market-chart-low"></span><span id="market-chart-high"></span></div>
+                    <div class="market-chart-legend"><span id="market-range-label">1D</span><span id="market-last-updated">—</span></div>
+                </section>
+                <section class="market-card market-card-pad market-ticket" aria-labelledby="trade-ticket-title">
+                    <h3 id="trade-ticket-title" class="market-card-heading">Place a virtual order</h3>
+                    <form id="trade-order-form" novalidate>
+                        <div class="market-ticket-body">
+                            <div class="market-ticket-side" role="group" aria-label="Order side">
+                                <button type="button" data-market-side="BUY" class="is-active" aria-pressed="true">Buy shares</button>
+                                <button type="button" data-market-side="SELL" aria-pressed="false">Sell shares</button>
+                            </div>
+                            <div class="market-ticket-field">
+                                <label for="trade-order-symbol">Stock</label>
+                                <input id="trade-order-symbol" type="text" readonly placeholder="Select from watchlist" required>
+                            </div>
+                            <div class="market-ticket-field">
+                                <label for="trade-order-quantity">Quantity (whole shares)</label>
+                                <input id="trade-order-quantity" type="number" value="1" min="1" max="100000" step="1" required inputmode="numeric">
+                            </div>
+                            <dl class="market-order-summary">
+                                <div><dt>Estimated order value</dt><dd id="trade-order-estimated">—</dd></div>
+                                <div><dt>Wallet cash</dt><dd id="trade-order-balance">—</dd></div>
+                                <div><dt>Shares currently held</dt><dd id="trade-order-held">0</dd></div>
+                            </dl>
+                        </div>
+                        <input type="hidden" id="trade-order-side" value="BUY">
+                        <button type="submit" id="trade-order-submit" class="btn btn-buy market-trade-submit" disabled>Place BUY order</button>
+                        <p class="market-disclaimer">Confirming submits a real order to StockSim's <em>virtual</em> trading engine. The server validates available funds, shares and final simulated execution price. If auto-execution is off, the order may remain pending.</p>
+                        <div id="trade-order-feedback" role="status" class="market-feedback" hidden></div>
+                        <button type="button" id="trade-order-reconcile" class="btn btn-quiet market-reconcile" hidden>Check previous order before retrying</button>
+                    </form>
+                </section>
+            </div>
+        </section>
+
         <div class="dash-grid">
             <div>
                 <section class="panel" aria-labelledby="balance-title">
@@ -59,25 +143,33 @@
                             <dd id="user-balance"><span class="skeleton">₹1,00,000.00</span></dd>
                         </div>
                         <div class="balance-sub">
-                            <div><dt>Invested</dt><dd>₹0.00</dd></div>
-                            <div><dt>Total profit or loss</dt><dd>₹0.00 (0.00%)</dd></div>
-                            <div><dt>Open positions</dt><dd>0</dd></div>
+                            <div><dt>Invested</dt><dd id="live-invested">—</dd></div>
+                            <div><dt>Total profit or loss</dt><dd id="live-pnl">—</dd></div>
+                            <div><dt>Open positions</dt><dd id="live-positions">—</dd></div>
                         </div>
                     </dl>
                 </section>
 
-                <section class="panel holdings" aria-labelledby="holdings-title">
-                    <div class="panel-head"><h2 id="holdings-title">Holdings</h2></div>
-                    <table class="table">
-                        <thead>
-                            <tr><th scope="col">Stock</th><th scope="col" class="r">Qty</th><th scope="col" class="r">Avg cost</th><th scope="col" class="r">P&amp;L</th></tr>
-                        </thead>
-                    </table>
-                    <div class="empty">
-                        <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 32h28"/><path d="M12 26V14M12 10v4M28 22v-8M28 26v-4"/><rect x="9" y="14" width="6" height="8" rx="1"/><rect x="25" y="14" width="6" height="8" rx="1"/></svg>
-                        <strong>You don't own any stocks yet</strong>
-                        <p>Buying and selling opens in the next update. Your ₹1,00,000 will be ready to use the moment it does.</p>
+                <section class="panel holdings" aria-labelledby="holdings-title" id="portfolio-panel">
+                    <div class="panel-head"><h2 id="holdings-title">Your holdings</h2><span class="market-muted">Live portfolio</span></div>
+                    <div class="market-table-wrap">
+                        <table class="table">
+                            <thead><tr><th scope="col">Stock</th><th scope="col" class="r">Qty</th><th scope="col" class="r">Avg cost</th><th scope="col" class="r">Unrealized P&amp;L</th></tr></thead>
+                            <tbody id="live-holdings-body"></tbody>
+                        </table>
                     </div>
+                    <p class="market-panel-empty" id="live-holdings-empty">No open positions. Select a stock above to place a virtual BUY order.</p>
+                    <p class="market-panel-empty" id="portfolio-loading-error" role="status" hidden></p>
+                </section>
+                <section class="panel market-order-history" aria-labelledby="live-orders-title">
+                    <div class="panel-head"><h2 id="live-orders-title">Recent orders</h2><span class="market-muted">Last 8</span></div>
+                    <div class="market-table-wrap">
+                        <table class="table">
+                            <thead><tr><th scope="col">Stock</th><th scope="col">Side</th><th scope="col" class="r">Qty</th><th scope="col" class="r">Price</th><th scope="col" class="r">Status</th></tr></thead>
+                            <tbody id="live-orders-body"></tbody>
+                        </table>
+                    </div>
+                    <p class="market-panel-empty" id="live-orders-empty">No orders yet. Use the order ticket above to make your first virtual trade.</p>
                 </section>
 
                 <section class="panel assistant-panel" aria-labelledby="assistant-title" id="assistant-panel">
@@ -168,13 +260,13 @@
                 </section>
 
                 <section class="panel" aria-labelledby="next-title">
-                    <div class="panel-head"><h2 id="next-title">Coming to your account</h2></div>
-                    <ul class="panel-body next-list">
-                        <li><span class="status status-build" aria-hidden="true"></span>A simulated market to browse stocks</li>
-                        <li><span class="status status-build" aria-hidden="true"></span>Buy and sell orders</li>
-                        <li><span class="status status-build" aria-hidden="true"></span>Portfolio with profit and loss</li>
-                        <li><span class="status status-plan" aria-hidden="true"></span>Trade history and price alerts</li>
-                    </ul>
+                    <div class="panel-head"><h2 id="next-title">Quick guide</h2></div>
+                    <ol class="panel-body market-note-list">
+                        <li>Search or select a stock in the watchlist to review simulated prices.</li>
+                        <li>Buy or sell virtual shares using the order ticket and confirm the submission.</li>
+                        <li>Review your holdings, portfolio P&amp;L and order status here.</li>
+                        <li>Ask the AI assistant for explanations or read-only trade previews.</li>
+                    </ol>
                 </section>
             </div>
         </div>
@@ -195,5 +287,6 @@
 <script src="/js/auth.js"></script>
 <script src="/js/profile.js"></script>
 <script src="/js/assistant.js"></script>
+<script src="/js/trading-dashboard.js"></script>
 </body>
 </html>
