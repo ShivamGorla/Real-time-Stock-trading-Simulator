@@ -3,6 +3,7 @@ package com.stocktrading.simulator.repository;
 import com.stocktrading.simulator.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -11,7 +12,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail(String email);
 
+    Optional<User> findByEmailIgnoreCase(String email);
+
     boolean existsByUsername(String username);
 
     boolean existsByEmail(String email);
+
+    boolean existsByPublicUserId(Integer publicUserId);
+
+    List<User> findByPublicUserIdIsNull();
 }

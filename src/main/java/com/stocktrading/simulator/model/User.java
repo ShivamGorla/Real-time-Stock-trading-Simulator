@@ -37,6 +37,14 @@ public class User {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    /** Six-digit public identifier (100000-999999). Nullable only so legacy rows can be backfilled; unique at DB level. */
+    @Column(name = "public_user_id", unique = true)
+    private Integer publicUserId;
+
+    /** null = legacy account created before verification existed (treated as verified). */
+    @Column(name = "email_verified")
+    private Boolean emailVerified;
+
     protected User() {}
 
     public User(String name, String username, String email, String passwordHash) {
@@ -61,4 +69,11 @@ public class User {
     public String getPasswordHash() { return passwordHash; }
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
     public LocalDateTime getCreatedAt() { return createdAt; }
+    public Integer getPublicUserId() { return publicUserId; }
+    public void setPublicUserId(Integer publicUserId) { this.publicUserId = publicUserId; }
+    public Boolean getEmailVerified() { return emailVerified; }
+    public void setEmailVerified(Boolean emailVerified) { this.emailVerified = emailVerified; }
+
+    /** Legacy accounts (null) count as verified. */
+    public boolean isEmailVerifiedOrLegacy() { return !Boolean.FALSE.equals(emailVerified); }
 }

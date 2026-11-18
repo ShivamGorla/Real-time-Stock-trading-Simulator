@@ -143,6 +143,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }).then(function (res) {
                 if (res.ok) {
                     window.location.href = '/dashboard.html';
+                } else if (res.status === 403) {
+                    showAlert(errorDiv, 'Please verify your email first. Check your inbox for the link, or request a new one from the Forgot password page.');
+                    pass.value = '';
+                    setBusy(btn, false);
                 } else {
                     showAlert(errorDiv, 'That username and password don’t match. Check both and try again.');
                     pass.value = '';
@@ -188,6 +192,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById('user-username').textContent = user.username;
                 document.getElementById('user-email').textContent = user.email;
                 document.getElementById('user-since').textContent = formatDate(user.createdAt);
+                var pid = document.getElementById('user-public-id');
+                if (pid) pid.textContent = user.publicUserId || 'Not assigned';
+                var ev = document.getElementById('user-email-status');
+                if (ev) ev.textContent = user.emailVerified ? 'Verified' : 'Not verified';
             })
             .catch(function () { /* redirected above, or network error leaves skeletons */ });
 
