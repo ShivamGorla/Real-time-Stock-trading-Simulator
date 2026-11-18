@@ -7,6 +7,7 @@ import com.stocktrading.simulator.dto.OrderResponse;
 import com.stocktrading.simulator.exception.ResourceNotFoundException;
 import com.stocktrading.simulator.model.OrderSide;
 import com.stocktrading.simulator.service.OrderService;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashMap;
@@ -92,23 +93,15 @@ public class OrderTools extends AbstractAssistantTool {
                     ? args.getSymbol().trim().toUpperCase()
                     : null;
 
-            List<OrderResponse> filtered = orderService.getUserOrders(username).stream()
-                    .filter(o -> sideFilter == null || sideFilter == o.getSide())
-                    .filter(o -> symbolFilter == null || symbolFilter.equalsIgnoreCase(o.getSymbol()))
-                    .toList();
-
-            int totalElements = filtered.size();
-            int totalPages = totalElements == 0 ? 0 : (int) Math.ceil((double) totalElements / effectiveSize);
-            int fromIndex = Math.min(args.getPage() * effectiveSize, totalElements);
-            int toIndex = Math.min(fromIndex + effectiveSize, totalElements);
-            List<OrderResponse> pageContent = filtered.subList(fromIndex, toIndex);
+            Page<OrderResponse> pageResult = orderService.getUserOrdersPage(
+                    username, sideFilter, symbolFilter, args.getPage(), effectiveSize);
 
             Map<String, Object> responseMap = new LinkedHashMap<>();
-            responseMap.put("orders", pageContent);
+            responseMap.put("orders", pageResult.getContent());
             responseMap.put("page", args.getPage());
             responseMap.put("size", effectiveSize);
-            responseMap.put("totalElements", totalElements);
-            responseMap.put("totalPages", totalPages);
+            responseMap.put("totalElements", pageResult.getTotalElements());
+            responseMap.put("totalPages", pageResult.getTotalPages());
 
             return ToolResult.success(serializeResult(responseMap));
         } catch (IllegalArgumentException | ResourceNotFoundException ex) {

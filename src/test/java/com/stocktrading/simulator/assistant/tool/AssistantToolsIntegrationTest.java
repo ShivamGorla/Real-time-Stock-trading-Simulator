@@ -217,4 +217,64 @@ class AssistantToolsIntegrationTest {
         assertFalse(toolRegistry.executeTool("get_wallet_balance", "alice", "{\"username\":\"bob\"}").isSuccess());
         assertFalse(toolRegistry.executeTool("get_portfolio", "alice", "{not valid json").isSuccess());
     }
+
+    @Test
+    @DisplayName("get_order_history handles DB pagination, filtering, int-overflow page*size, and Integer.MAX_VALUE pages safely")
+    void orderHistoryPaginationHandlesIntegerOverflowAndLargePagesSafely() throws Exception {
+        // Alice already has 1 BUY INFY order from setUp; add 2 more orders (1 BUY TCS, 1 SELL INFY)
+        OrderResponse buyTcs = orderService.createBuyOrder("alice", new OrderRequest(UUID.randomUUID().toString(), "TCS", 2));
+        orderExecutionService.executeOrder(buyTcs.getId(), "alice");
+        OrderResponse sellInfy = orderService.createSellOrder("alice", new OrderRequest(UUID.randomUUID().toString(), "INFY", 3));
+        orderExecutionService.executeOrder(sellInfy.getId(), "alice");
+
+        // Page 0, size 2 -> returns 2 of Alice's 3 orders (totalPages = 2)
+        ToolResult page0 = toolRegistry.executeTool("get_order_history", "alice", "{\"page\":0,\"size\":2}");
+        assertTrue(page0.isSuccess());
+        JsonNode p0Json = objectMapper.readTree(page0.getContent());
+        assertEquals(2, p0Json.get("orders").size());
+        assertEquals(3, p0Json.get("totalElements").asLong());
+        assertEquals(2, p0Json.get("totalPages").asInt());
+
+        // Page 1, size 2 -> returns remaining 1 order
+        ToolResult page1 = toolRegistry.executeTool("get_order_history", "alice", "{\"page\":1,\"size\":2}");
+        assertTrue(page1.isSuccess());
+        JsonNode p1Json = objectMapper.readTree(page1.getContent());
+        assertEquals(1, p1Json.get("orders").size());
+        assertEquals(3, p1Json.get("totalElements").asLong());
+
+        // DB-level filtering by side + symbol (case-insensitive)
+        ToolResult filtered = toolRegistry.executeTool(
+                "get_order_history", "alice", "{\"type\":\"SELL\",\"symbol\":\"infy\",\"page\":0,\"size\":10}");
+        assertTrue(filtered.isSuccess());
+        JsonNode filteredJson = objectMapper.readTree(filtered.getContent());
+        assertEquals(1, filteredJson.get("totalElements").asLong());
+        assertEquals("SELL", filteredJson.get("orders").get(0).get("side").asText());
+        assertEquals("INFY", filteredJson.get("orders").get(0).get("symbol").asText());
+
+        // 32-bit int overflow boundary: 107_374_183 * 20 would overflow int to -2_147_483_636
+        ToolResult overflowPage = toolRegistry.executeTool(
+                "get_order_history", "alice", "{\"page\":107374183,\"size\":20}");
+        assertTrue(overflowPage.isSuccess(), "Overflow page*size must not fail or throw IndexOutOfBoundsException");
+        JsonNode overflowJson = objectMapper.readTree(overflowPage.getContent());
+        assertEquals(0, overflowJson.get("orders").size());
+        assertEquals(107374183, overflowJson.get("page").asInt());
+        assertEquals(20, overflowJson.get("size").asInt());
+        assertEquals(3, overflowJson.get("totalElements").asLong());
+        assertEquals(1, overflowJson.get("totalPages").asInt());
+
+        // Extreme page = Integer.MAX_VALUE with oversized size (clamped to MAX_PAGE_SIZE=50)
+        ToolResult maxPage = toolRegistry.executeTool(
+                "get_order_history", "alice", "{\"page\":2147483647,\"size\":999}");
+        assertTrue(maxPage.isSuccess());
+        JsonNode maxJson = objectMapper.readTree(maxPage.getContent());
+        assertEquals(0, maxJson.get("orders").size());
+        assertEquals(Integer.MAX_VALUE, maxJson.get("page").asInt());
+        assertEquals(OrderTools.MAX_PAGE_SIZE, maxJson.get("size").asInt());
+        assertEquals(3, maxJson.get("totalElements").asLong());
+        assertEquals(1, maxJson.get("totalPages").asInt());
+
+        // Invalid page / size bounds return controlled tool errors
+        assertFalse(toolRegistry.executeTool("get_order_history", "alice", "{\"page\":-1,\"size\":10}").isSuccess());
+        assertFalse(toolRegistry.executeTool("get_order_history", "alice", "{\"page\":0,\"size\":0}").isSuccess());
+    }
 }

@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 public interface StockPriceHistoryRepository extends JpaRepository<StockPriceHistory, Long> {
 
-    @Query("SELECT h FROM StockPriceHistory h WHERE h.stock = :stock ORDER BY h.recordedAt DESC")
+    @Query("SELECT h FROM StockPriceHistory h WHERE h.stock = :stock ORDER BY h.recordedAt DESC, h.id DESC")
     List<StockPriceHistory> findRecentHistoryByStock(@Param("stock") Stock stock, Pageable pageable);
 
     long countByStock(Stock stock);

@@ -139,6 +139,36 @@ class StockServiceTest {
     }
 
     @Test
+    void getStockHistory_IdenticalTimestamps_DeterministicSecondarySortByIdAndChronologicalOrder() {
+        stockService.createStockIfAbsent("TIE1", "Tie Break Co", new BigDecimal("100.00"));
+        Instant identicalTimestamp = Instant.now().plusSeconds(60);
+
+        // Record 5 distinct prices at the exact same timestamp
+        stockService.updateStockPrice("TIE1", new BigDecimal("110.00"), identicalTimestamp);
+        stockService.updateStockPrice("TIE1", new BigDecimal("120.00"), identicalTimestamp);
+        stockService.updateStockPrice("TIE1", new BigDecimal("130.00"), identicalTimestamp);
+        stockService.updateStockPrice("TIE1", new BigDecimal("140.00"), identicalTimestamp);
+        stockService.updateStockPrice("TIE1", new BigDecimal("150.00"), identicalTimestamp);
+
+        // Full history must preserve exact chronological insertion order
+        List<StockPriceHistoryResponse> full = stockService.getStockHistory("TIE1", 10);
+        assertEquals(6, full.size());
+        assertEquals(new BigDecimal("100.00"), full.get(0).getPrice());
+        assertEquals(new BigDecimal("110.00"), full.get(1).getPrice());
+        assertEquals(new BigDecimal("120.00"), full.get(2).getPrice());
+        assertEquals(new BigDecimal("130.00"), full.get(3).getPrice());
+        assertEquals(new BigDecimal("140.00"), full.get(4).getPrice());
+        assertEquals(new BigDecimal("150.00"), full.get(5).getPrice());
+
+        // Bounded limit=3 must return the 3 latest rows (highest IDs) in chronological order
+        List<StockPriceHistoryResponse> latestThree = stockService.getStockHistory("TIE1", 3);
+        assertEquals(3, latestThree.size());
+        assertEquals(new BigDecimal("130.00"), latestThree.get(0).getPrice());
+        assertEquals(new BigDecimal("140.00"), latestThree.get(1).getPrice());
+        assertEquals(new BigDecimal("150.00"), latestThree.get(2).getPrice());
+    }
+
+    @Test
     void stockPriceSimulator_CalculateNextPrice_NeverBelowFloor() {
         BigDecimal verySmallPrice = new BigDecimal("0.50");
         BigDecimal nextPrice = stockPriceSimulator.calculateNextPrice(verySmallPrice, 0.50);

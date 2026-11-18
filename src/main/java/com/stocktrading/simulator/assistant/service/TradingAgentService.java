@@ -14,7 +14,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Service orchestrating AI Trading Assistant conversations and tool-calling execution.
@@ -33,7 +35,10 @@ public class TradingAgentService {
 
     private static final Logger log = LoggerFactory.getLogger(TradingAgentService.class);
     public static final int MAX_ITERATIONS = 5;
+    public static final int MAX_TOOL_CALLS_PER_TURN = 8;
     public static final int MAX_TOOL_RESULT_CHARS = 16_000;
+    public static final int MAX_TURN_TOOL_RESULT_CHARS = 16_000;
+    private static final String TRUNCATION_SUFFIX = "... [truncated]";
 
     private final LlmClient llmClient;
     private final ToolRegistry toolRegistry;
@@ -83,104 +88,147 @@ public class TradingAgentService {
             return AgentResponse.error(conversation.getId(), disabledMsg, "ASSISTANT_DISABLED");
         }
 
-        // Add user message to conversation history
-        conversation.addMessage(ChatMessage.user(userMessage));
+        // Serialize concurrent turns on the same conversationId to prevent interleaved histories,
+        // without blocking unrelated conversations or cross-user ownership rejection above.
+        conversation.getTurnLock().lock();
+        try {
+            // Add user message to conversation history
+            conversation.addMessage(ChatMessage.user(userMessage));
 
-        List<ToolDefinition> toolDefinitions = toolRegistry.getToolDefinitions();
-        List<String> executedTools = new ArrayList<>();
-        int iterations = 0;
+            List<ToolDefinition> toolDefinitions = toolRegistry.getToolDefinitions();
+            List<String> executedTools = new ArrayList<>();
+            int iterations = 0;
 
-        while (iterations < MAX_ITERATIONS) {
-            iterations++;
+            while (iterations < MAX_ITERATIONS) {
+                iterations++;
 
-            List<ChatMessage> fullMessages = new ArrayList<>();
-            fullMessages.add(ChatMessage.system(StockSimSystemPrompt.SYSTEM_PROMPT));
-            fullMessages.addAll(conversation.getMessages());
+                List<ChatMessage> fullMessages = new ArrayList<>();
+                fullMessages.add(ChatMessage.system(StockSimSystemPrompt.SYSTEM_PROMPT));
+                fullMessages.addAll(conversation.getMessages());
 
-            ChatCompletionRequest request = ChatCompletionRequest.builder()
-                    .model(properties.getModel())
-                    .messages(fullMessages)
-                    .tools(toolDefinitions != null && !toolDefinitions.isEmpty() ? toolDefinitions : null)
-                    .toolChoice(toolDefinitions != null && !toolDefinitions.isEmpty() ? "auto" : null)
-                    .temperature(properties.getTemperature())
-                    .maxTokens(properties.getMaxTokens())
-                    .build();
+                ChatCompletionRequest request = ChatCompletionRequest.builder()
+                        .model(properties.getModel())
+                        .messages(fullMessages)
+                        .tools(toolDefinitions != null && !toolDefinitions.isEmpty() ? toolDefinitions : null)
+                        .toolChoice(toolDefinitions != null && !toolDefinitions.isEmpty() ? "auto" : null)
+                        .temperature(properties.getTemperature())
+                        .maxTokens(properties.getMaxTokens())
+                        .build();
 
-            ChatCompletionResponse response;
-            try {
-                response = llmClient.chatCompletion(request);
-            } catch (LlmAuthenticationException ex) {
-                log.warn("LLM provider authentication failure (HTTP {})", ex.getStatusCode());
-                return AgentResponse.error(conversation.getId(), "LLM authentication failed. Please check configured API credentials.", "LLM_AUTHENTICATION_ERROR");
-            } catch (LlmRateLimitException ex) {
-                log.warn("LLM provider rate limit exceeded (HTTP 429)");
-                return AgentResponse.error(conversation.getId(), "The AI assistant is experiencing high demand. Please try again in a few moments.", "LLM_RATE_LIMIT_ERROR");
-            } catch (LlmTimeoutException ex) {
-                log.warn("LLM provider request timed out");
-                return AgentResponse.error(conversation.getId(), "The AI request timed out. Please try again.", "LLM_TIMEOUT_ERROR");
-            } catch (LlmServerException ex) {
-                log.warn("LLM provider server error (HTTP {})", ex.getStatusCode());
-                return AgentResponse.error(conversation.getId(), "The AI provider is temporarily unavailable. Please try again shortly.", "LLM_SERVER_ERROR");
-            } catch (LlmException ex) {
-                log.warn("LLM service error: {}", ex.getClass().getSimpleName());
-                return AgentResponse.error(conversation.getId(), "The AI service encountered an error processing your request. Please try again.", "LLM_SERVICE_ERROR");
-            } catch (Exception ex) {
-                log.error("Unexpected error during assistant chat completion: {}", ex.getClass().getSimpleName());
-                return AgentResponse.error(conversation.getId(), "Unexpected error communicating with AI assistant. Please try again.", "UNEXPECTED_ERROR");
-            }
+                ChatCompletionResponse response;
+                try {
+                    response = llmClient.chatCompletion(request);
+                } catch (LlmAuthenticationException ex) {
+                    log.warn("LLM provider authentication failure (HTTP {})", ex.getStatusCode());
+                    return AgentResponse.error(conversation.getId(), "LLM authentication failed. Please check configured API credentials.", "LLM_AUTHENTICATION_ERROR");
+                } catch (LlmRateLimitException ex) {
+                    log.warn("LLM provider rate limit exceeded (HTTP 429)");
+                    return AgentResponse.error(conversation.getId(), "The AI assistant is experiencing high demand. Please try again in a few moments.", "LLM_RATE_LIMIT_ERROR");
+                } catch (LlmTimeoutException ex) {
+                    log.warn("LLM provider request timed out");
+                    return AgentResponse.error(conversation.getId(), "The AI request timed out. Please try again.", "LLM_TIMEOUT_ERROR");
+                } catch (LlmServerException ex) {
+                    log.warn("LLM provider server error (HTTP {})", ex.getStatusCode());
+                    return AgentResponse.error(conversation.getId(), "The AI provider is temporarily unavailable. Please try again shortly.", "LLM_SERVER_ERROR");
+                } catch (LlmException ex) {
+                    log.warn("LLM service error: {}", ex.getClass().getSimpleName());
+                    return AgentResponse.error(conversation.getId(), "The AI service encountered an error processing your request. Please try again.", "LLM_SERVICE_ERROR");
+                } catch (Exception ex) {
+                    log.error("Unexpected error during assistant chat completion: {}", ex.getClass().getSimpleName());
+                    return AgentResponse.error(conversation.getId(), "Unexpected error communicating with AI assistant. Please try again.", "UNEXPECTED_ERROR");
+                }
 
-            if (response == null || response.getChoices() == null || response.getChoices().isEmpty()) {
-                String emptyMsg = "Received empty response from the AI provider.";
-                conversation.addMessage(ChatMessage.assistant(emptyMsg));
-                return AgentResponse.error(conversation.getId(), emptyMsg, "EMPTY_RESPONSE");
-            }
+                if (response == null || response.getChoices() == null || response.getChoices().isEmpty()) {
+                    String emptyMsg = "Received empty response from the AI provider.";
+                    conversation.addMessage(ChatMessage.assistant(emptyMsg));
+                    return AgentResponse.error(conversation.getId(), emptyMsg, "EMPTY_RESPONSE");
+                }
 
-            Choice choice = response.getChoices().get(0);
-            ChatMessage assistantMessage = choice.getMessage();
+                Choice choice = response.getChoices().get(0);
+                ChatMessage assistantMessage = choice.getMessage();
 
-            if (assistantMessage == null) {
-                String emptyMsg = "Received empty assistant message from the AI provider.";
-                conversation.addMessage(ChatMessage.assistant(emptyMsg));
-                return AgentResponse.error(conversation.getId(), emptyMsg, "EMPTY_MESSAGE");
-            }
+                if (assistantMessage == null) {
+                    String emptyMsg = "Received empty assistant message from the AI provider.";
+                    conversation.addMessage(ChatMessage.assistant(emptyMsg));
+                    return AgentResponse.error(conversation.getId(), emptyMsg, "EMPTY_MESSAGE");
+                }
 
-            // Check if model requested tool calls
-            if (assistantMessage.getToolCalls() != null && !assistantMessage.getToolCalls().isEmpty()) {
-                List<ChatMessage> toolTurnBatch = new ArrayList<>();
-                toolTurnBatch.add(assistantMessage);
-
-                for (ToolCall toolCall : assistantMessage.getToolCalls()) {
-                    String toolCallId = toolCall.getId();
-                    String toolName = (toolCall.getFunction() != null) ? toolCall.getFunction().getName() : null;
-                    String toolArgs = (toolCall.getFunction() != null) ? toolCall.getFunction().getArguments() : "{}";
-
-                    executedTools.add(toolName);
-                    log.debug("Agent executing requested tool '{}' with id '{}'", toolName, toolCallId);
-
-                    ToolResult toolResult = toolRegistry.executeTool(toolName, username, toolArgs);
-                    String boundedContent = toolResult.getContent();
-                    if (boundedContent != null && boundedContent.length() > MAX_TOOL_RESULT_CHARS) {
-                        boundedContent = boundedContent.substring(0, MAX_TOOL_RESULT_CHARS) + "... [truncated]";
+                // Check if model requested tool calls
+                List<ToolCall> requestedCalls = assistantMessage.getToolCalls();
+                if (requestedCalls != null && !requestedCalls.isEmpty()) {
+                    if (requestedCalls.size() > MAX_TOOL_CALLS_PER_TURN) {
+                        log.warn("Agent rejected excessive tool calls ({} > {}) in a single turn for user '{}'",
+                                requestedCalls.size(), MAX_TOOL_CALLS_PER_TURN, username);
+                        String tooManyMsg = "The AI requested too many tool calls in a single step. Please narrow your question.";
+                        conversation.addMessage(ChatMessage.assistant(tooManyMsg));
+                        return new AgentResponse(conversation.getId(), tooManyMsg, executedTools, false, "TOO_MANY_TOOL_CALLS", Instant.now());
                     }
 
-                    toolTurnBatch.add(ChatMessage.tool(toolCallId, toolName, boundedContent));
-                }
-                // Add assistant(tool_calls) + all matching tool results atomically so history trimming
-                // never splits an active tool-call exchange
-                conversation.addMessages(toolTurnBatch);
-                // Continue loop with tool results included in next request
-            } else {
-                // Final text completion response
-                String replyContent = assistantMessage.getContent() != null ? assistantMessage.getContent() : "";
-                conversation.addMessage(ChatMessage.assistant(replyContent));
-                return AgentResponse.success(conversation.getId(), replyContent, executedTools);
-            }
-        }
+                    // Validate tool call IDs are present and distinct before executing or storing
+                    Set<String> seenIds = new HashSet<>();
+                    for (ToolCall tc : requestedCalls) {
+                        if (tc == null || tc.getId() == null || tc.getId().isBlank() || !seenIds.add(tc.getId())) {
+                            log.warn("Agent rejected malformed tool call payload for user '{}'", username);
+                            String malformedMsg = "The AI returned a malformed tool request. Please try again.";
+                            conversation.addMessage(ChatMessage.assistant(malformedMsg));
+                            return new AgentResponse(conversation.getId(), malformedMsg, executedTools, false, "INVALID_TOOL_CALL", Instant.now());
+                        }
+                    }
 
-        // Loop terminated due to reaching MAX_ITERATIONS
-        log.warn("Agent reached maximum allowed tool iterations ({}) for user '{}'", MAX_ITERATIONS, username);
-        String limitMessage = "I have reached the maximum processing limit for this request. Please clarify or narrow down your question.";
-        conversation.addMessage(ChatMessage.assistant(limitMessage));
-        return new AgentResponse(conversation.getId(), limitMessage, executedTools, false, "MAX_ITERATIONS_REACHED", Instant.now());
+                    List<ChatMessage> toolTurnBatch = new ArrayList<>(requestedCalls.size() + 1);
+                    toolTurnBatch.add(assistantMessage);
+
+                    int remainingTurnBudget = MAX_TURN_TOOL_RESULT_CHARS;
+                    int totalCalls = requestedCalls.size();
+                    for (int idx = 0; idx < totalCalls; idx++) {
+                        ToolCall toolCall = requestedCalls.get(idx);
+                        String toolCallId = toolCall.getId();
+                        String toolName = (toolCall.getFunction() != null) ? toolCall.getFunction().getName() : null;
+                        String toolArgs = (toolCall.getFunction() != null) ? toolCall.getFunction().getArguments() : "{}";
+
+                        executedTools.add(toolName);
+                        log.debug("Agent executing requested tool '{}' with id '{}'", toolName, toolCallId);
+
+                        ToolResult toolResult = toolRegistry.executeTool(toolName, username, toolArgs);
+                        int remainingCalls = totalCalls - idx;
+                        int perCallAllowance = Math.min(MAX_TOOL_RESULT_CHARS, Math.max(0, remainingTurnBudget / remainingCalls));
+                        String boundedContent = truncateToLimit(toolResult.getContent(), perCallAllowance);
+                        remainingTurnBudget -= boundedContent.length();
+
+                        toolTurnBatch.add(ChatMessage.tool(toolCallId, toolName, boundedContent));
+                    }
+                    // Add assistant(tool_calls) + all matching tool results atomically so history trimming
+                    // never splits an active tool-call exchange
+                    conversation.addMessages(toolTurnBatch);
+                    // Continue loop with tool results included in next request
+                } else {
+                    // Final text completion response
+                    String replyContent = assistantMessage.getContent() != null ? assistantMessage.getContent() : "";
+                    conversation.addMessage(ChatMessage.assistant(replyContent));
+                    return AgentResponse.success(conversation.getId(), replyContent, executedTools);
+                }
+            }
+
+            // Loop terminated due to reaching MAX_ITERATIONS
+            log.warn("Agent reached maximum allowed tool iterations ({}) for user '{}'", MAX_ITERATIONS, username);
+            String limitMessage = "I have reached the maximum processing limit for this request. Please clarify or narrow down your question.";
+            conversation.addMessage(ChatMessage.assistant(limitMessage));
+            return new AgentResponse(conversation.getId(), limitMessage, executedTools, false, "MAX_ITERATIONS_REACHED", Instant.now());
+        } finally {
+            conversation.getTurnLock().unlock();
+        }
+    }
+
+    private static String truncateToLimit(String content, int maxChars) {
+        if (content == null || maxChars <= 0) {
+            return "";
+        }
+        if (content.length() <= maxChars) {
+            return content;
+        }
+        if (maxChars <= TRUNCATION_SUFFIX.length()) {
+            return content.substring(0, maxChars);
+        }
+        return content.substring(0, maxChars - TRUNCATION_SUFFIX.length()) + TRUNCATION_SUFFIX;
     }
 }

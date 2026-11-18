@@ -10,6 +10,9 @@ import com.stocktrading.simulator.repository.StockRepository;
 import com.stocktrading.simulator.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
@@ -152,6 +155,39 @@ public class OrderService {
         return orderRepository.findByUserOrderByCreatedAtDesc(user).stream()
                 .map(OrderResponse::new)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Database-level filtered and paginated order history query with overflow-safe offset handling.
+     */
+    @Transactional(readOnly = true)
+    public Page<OrderResponse> getUserOrdersPage(String username,
+                                                 OrderSide side,
+                                                 String symbol,
+                                                 int page,
+                                                 int size) {
+        if (page < 0) {
+            throw new IllegalArgumentException("Page index must be zero or positive");
+        }
+        if (size <= 0) {
+            throw new IllegalArgumentException("Page size must be greater than zero");
+        }
+        User user = userRepository.findByUsername(username.trim())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
+
+        String normalizedSymbol = (symbol != null && !symbol.isBlank())
+                ? symbol.trim().toUpperCase()
+                : null;
+
+        // Guard against 32-bit int overflow in page * size and Hibernate firstResult(int) limits
+        long offset = (long) page * (long) size;
+        if (offset > Integer.MAX_VALUE) {
+            long totalElements = orderRepository.countUserOrdersFiltered(user, side, normalizedSymbol);
+            return new PageImpl<>(List.of(), PageRequest.of(0, size), totalElements);
+        }
+
+        return orderRepository.findUserOrdersFiltered(user, side, normalizedSymbol, PageRequest.of(page, size))
+                .map(OrderResponse::new);
     }
 
     @Transactional(readOnly = true)
