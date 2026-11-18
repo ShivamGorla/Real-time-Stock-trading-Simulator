@@ -30,7 +30,7 @@ public class AssistantProperties {
     /**
      * Model identifier to request (configured via STOCKSIM_ASSISTANT_MODEL; defaults to a provider-supported Groq model).
      */
-    private String model = "llama-3.3-70b-versatile";
+    private String model = "openai/gpt-oss-120b";
 
     /**
      * Sampling temperature between 0.0 and 2.0. Defaults to 0.1 for high determinism.
