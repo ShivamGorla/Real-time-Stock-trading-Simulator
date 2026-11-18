@@ -109,6 +109,11 @@ public class StockService {
     }
 
     @Transactional
+    public synchronized Stock updateStockPrice(String symbol, BigDecimal newPrice) {
+        return updateStockPrice(symbol, newPrice, Instant.now());
+    }
+
+    @Transactional
     public synchronized Stock updateStockPrice(String symbol, BigDecimal newPrice, Instant updateTime) {
         if (newPrice == null || newPrice.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Stock price must be positive");

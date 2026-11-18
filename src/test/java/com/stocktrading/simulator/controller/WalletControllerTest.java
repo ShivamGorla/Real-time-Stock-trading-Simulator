@@ -46,6 +46,9 @@ class WalletControllerTest {
     private TradeRepository tradeRepository;
 
     @Autowired
+    private com.stocktrading.simulator.repository.HoldingRepository holdingRepository;
+
+    @Autowired
     private WalletService walletService;
 
     @BeforeEach
@@ -53,6 +56,7 @@ class WalletControllerTest {
     void setup() {
         tradeRepository.deleteAll();
         orderRepository.deleteAll();
+        holdingRepository.deleteAll();
         walletTransactionRepository.deleteAll();
         walletRepository.deleteAll();
         userRepository.deleteAll();

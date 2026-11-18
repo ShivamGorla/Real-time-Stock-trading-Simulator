@@ -63,6 +63,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
     }
 
+    @ExceptionHandler(InsufficientHoldingException.class)
+    public ResponseEntity<Map<String, String>> handleInsufficientHolding(InsufficientHoldingException ex) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(Map.of("error", ex.getMessage()));
+    }
+
     @ExceptionHandler(IdempotencyConflictException.class)
     public ResponseEntity<Map<String, String>> handleIdempotencyConflict(IdempotencyConflictException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", ex.getMessage()));

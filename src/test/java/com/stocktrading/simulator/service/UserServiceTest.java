@@ -44,11 +44,15 @@ class UserServiceTest {
     @Autowired
     private com.stocktrading.simulator.repository.TradeRepository tradeRepository;
 
+    @Autowired
+    private com.stocktrading.simulator.repository.HoldingRepository holdingRepository;
+
     @BeforeEach
     @AfterEach
     void cleanup() {
         tradeRepository.deleteAll();
         orderRepository.deleteAll();
+        holdingRepository.deleteAll();
         walletTransactionRepository.deleteAll();
         walletRepository.deleteAll();
         userRepository.deleteAll();

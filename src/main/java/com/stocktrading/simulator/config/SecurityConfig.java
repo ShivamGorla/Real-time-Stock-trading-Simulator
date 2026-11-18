@@ -26,7 +26,7 @@ public class SecurityConfig {
                 .csrfTokenRequestHandler(requestHandler)
             )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/user/**", "/api/wallet/**", "/api/orders/**", "/api/trades/**").authenticated()
+                .requestMatchers("/api/user/**", "/api/wallet/**", "/api/orders/**", "/api/trades/**", "/api/portfolio/**").authenticated()
                 .requestMatchers("/api/stocks/**").permitAll()
                 .anyRequest().permitAll() // Allow static resources, health, and auth endpoints
             )

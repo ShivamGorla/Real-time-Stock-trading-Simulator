@@ -113,9 +113,9 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
 
         if (order.getSide() == OrderSide.BUY) {
             wallet.debitSufficientFunds(userId, totalExecutionAmount, orderId, "BUY settlement for " + symbol);
-            holdings.addShares(userId, symbol, quantity, orderId);
+            holdings.addShares(userId, symbol, quantity, executionPrice, orderId);
         } else if (order.getSide() == OrderSide.SELL) {
-            holdings.deductAvailableShares(userId, symbol, quantity, orderId);
+            holdings.deductAvailableShares(userId, symbol, quantity, executionPrice, orderId);
             wallet.creditFunds(userId, totalExecutionAmount, orderId, "SELL settlement for " + symbol);
         } else {
             throw new IllegalArgumentException("Unsupported order side: " + order.getSide());

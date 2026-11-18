@@ -58,17 +58,30 @@ class OrderControllerTest {
     private UserRepository userRepository;
 
     @Autowired
+    private com.stocktrading.simulator.repository.WalletRepository walletRepository;
+
+    @Autowired
+    private com.stocktrading.simulator.repository.WalletTransactionRepository walletTransactionRepository;
+
+    @Autowired
+    private com.stocktrading.simulator.repository.HoldingRepository holdingRepository;
+
+    @Autowired
     private StockService stockService;
 
     @Autowired
     private ObjectMapper objectMapper;
 
+    @org.junit.jupiter.api.AfterEach
     @BeforeEach
     void setup() {
         tradeRepository.deleteAll();
         orderRepository.deleteAll();
+        holdingRepository.deleteAll();
         historyRepository.deleteAll();
         stockRepository.deleteAll();
+        walletTransactionRepository.deleteAll();
+        walletRepository.deleteAll();
         userRepository.deleteAll();
 
         userRepository.save(new User("Test User", "testuser", "test@example.com", "hash"));
@@ -243,6 +256,27 @@ class OrderControllerTest {
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.clientOrderId", containsString("valid UUID")));
+    }
+
+    @Test
+    void placeSellOrder_InsufficientHoldingException_Returns422UnprocessableEntity() throws Exception {
+        OrderService mockService = mock(OrderService.class);
+        when(mockService.createSellOrder(any(), any())).thenThrow(
+                new com.stocktrading.simulator.exception.InsufficientHoldingException("Insufficient shares owned: requested 10, available 2")
+        );
+
+        MockMvc standaloneMockMvc = MockMvcBuilders.standaloneSetup(new OrderController(mockService))
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .build();
+
+        OrderRequest request = new OrderRequest(UUID.randomUUID().toString(), "INFY", 10);
+
+        standaloneMockMvc.perform(post("/api/orders/sell")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                        .principal(new TestingAuthenticationToken("testuser", "pass", "ROLE_USER")))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.error").value("Insufficient shares owned: requested 10, available 2"));
     }
 
     @Test

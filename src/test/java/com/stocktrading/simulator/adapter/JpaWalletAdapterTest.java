@@ -43,6 +43,9 @@ class JpaWalletAdapterTest {
     private com.stocktrading.simulator.repository.TradeRepository tradeRepository;
 
     @Autowired
+    private com.stocktrading.simulator.repository.HoldingRepository holdingRepository;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -56,6 +59,7 @@ class JpaWalletAdapterTest {
     void teardown() {
         tradeRepository.deleteAll();
         orderRepository.deleteAll();
+        holdingRepository.deleteAll();
         walletTransactionRepository.deleteAll();
         walletRepository.deleteAll();
         userRepository.deleteAll();
@@ -66,6 +70,7 @@ class JpaWalletAdapterTest {
         transactionTemplate = new TransactionTemplate(transactionManager);
         tradeRepository.deleteAll();
         orderRepository.deleteAll();
+        holdingRepository.deleteAll();
         walletTransactionRepository.deleteAll();
         walletRepository.deleteAll();
         userRepository.deleteAll();

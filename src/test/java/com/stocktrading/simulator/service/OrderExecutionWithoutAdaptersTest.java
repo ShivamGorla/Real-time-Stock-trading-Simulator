@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,23 +37,43 @@ class OrderExecutionWithoutAdaptersTest {
     private UserRepository userRepository;
 
     @Autowired
+    private WalletTransactionRepository walletTransactionRepository;
+
+    @Autowired
+    private WalletRepository walletRepository;
+
+    @Autowired
+    private HoldingRepository holdingRepository;
+
+    @Autowired
     private StockService stockService;
 
     @Autowired
     private OrderService orderService;
 
-    @Autowired
-    private OrderExecutionService orderExecutionService;
+    private OrderExecutionService orderExecutionServiceWithoutAdapters;
 
     private User testUser;
 
+    @org.junit.jupiter.api.AfterEach
     @BeforeEach
     void setup() {
         tradeRepository.deleteAll();
         orderRepository.deleteAll();
+        walletTransactionRepository.deleteAll();
+        walletRepository.deleteAll();
+        holdingRepository.deleteAll();
         historyRepository.deleteAll();
         stockRepository.deleteAll();
         userRepository.deleteAll();
+
+        orderExecutionServiceWithoutAdapters = new OrderExecutionServiceImpl(
+                orderRepository,
+                stockRepository,
+                tradeRepository,
+                Optional.empty(),
+                Optional.empty()
+        );
 
         testUser = userRepository.save(new User("Test User", "testuser", "user@example.com", "hash"));
         stockService.createStockIfAbsent("INFY", "Infosys Ltd", new BigDecimal("1500.00"));
@@ -65,9 +86,9 @@ class OrderExecutionWithoutAdaptersTest {
                 new OrderRequest(UUID.randomUUID().toString(), "INFY", 10)
         );
 
-        // When execution is attempted against production bean without adapter beans registered
+        // When execution is attempted against service without adapter beans registered
         assertThrows(SettlementUnavailableException.class, () ->
-                orderExecutionService.executeOrder(createdOrder.getId(), "testuser")
+                orderExecutionServiceWithoutAdapters.executeOrder(createdOrder.getId(), "testuser")
         );
 
         // Verify order remains strictly PENDING
@@ -82,7 +103,7 @@ class OrderExecutionWithoutAdaptersTest {
 
     @Test
     void orderCreation_WhenAdaptersMissing_CreatesValidPendingOrderWithoutPretendingExecuted() {
-        assertFalse(orderExecutionService.isSettlementAvailable());
+        assertFalse(orderExecutionServiceWithoutAdapters.isSettlementAvailable());
 
         OrderResponse createdOrder = orderService.createBuyOrder(
                 "testuser",

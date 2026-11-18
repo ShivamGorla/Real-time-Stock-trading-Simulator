@@ -44,6 +44,15 @@ class OrderExecutionServiceTest {
     private UserRepository userRepository;
 
     @Autowired
+    private WalletTransactionRepository walletTransactionRepository;
+
+    @Autowired
+    private WalletRepository walletRepository;
+
+    @Autowired
+    private HoldingRepository holdingRepository;
+
+    @Autowired
     private StockService stockService;
 
     @Autowired
@@ -62,10 +71,14 @@ class OrderExecutionServiceTest {
     private User testUser2;
     private Stock testStock;
 
+    @org.junit.jupiter.api.AfterEach
     @BeforeEach
     void setup() {
         tradeRepository.deleteAll();
         orderRepository.deleteAll();
+        walletTransactionRepository.deleteAll();
+        walletRepository.deleteAll();
+        holdingRepository.deleteAll();
         historyRepository.deleteAll();
         stockRepository.deleteAll();
         userRepository.deleteAll();
@@ -108,6 +121,7 @@ class OrderExecutionServiceTest {
                 eq(testUser1.getId()),
                 eq("INFY"),
                 eq(10),
+                eq(new BigDecimal("1550.00")),
                 eq(createdOrder.getId())
         );
 
@@ -141,6 +155,7 @@ class OrderExecutionServiceTest {
                 eq(testUser1.getId()),
                 eq("INFY"),
                 eq(5),
+                eq(new BigDecimal("1500.00")),
                 eq(createdOrder.getId())
         );
 
@@ -178,14 +193,14 @@ class OrderExecutionServiceTest {
         assertEquals(OrderStatus.PENDING, order.getStatus());
 
         // Verify no shares added and no trade recorded
-        verify(holdingsPort, never()).addShares(anyLong(), anyString(), anyInt(), anyLong());
+        verify(holdingsPort, never()).addShares(anyLong(), anyString(), anyInt(), any(BigDecimal.class), anyLong());
         assertEquals(0, tradeRepository.count());
     }
 
     @Test
     void executeOrder_InsufficientShares_ThrowsException_LeavesOrderPending() {
         doThrow(new InsufficientSharesException("Insufficient shares owned"))
-                .when(holdingsPort).deductAvailableShares(anyLong(), anyString(), anyInt(), anyLong());
+                .when(holdingsPort).deductAvailableShares(anyLong(), anyString(), anyInt(), any(BigDecimal.class), anyLong());
 
         OrderResponse created = orderService.createSellOrder(
                 "userone",

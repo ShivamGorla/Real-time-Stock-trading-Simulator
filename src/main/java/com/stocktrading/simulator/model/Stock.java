@@ -49,12 +49,20 @@ public class Stock {
 
     protected Stock() {}
 
+    public Stock(String symbol, String companyName, BigDecimal initialPrice) {
+        this(symbol, companyName, initialPrice, Instant.now());
+    }
+
     public Stock(String symbol, String companyName, BigDecimal initialPrice, Instant timestamp) {
         this.symbol = symbol.trim().toUpperCase();
         this.companyName = companyName.trim();
         this.currentPrice = initialPrice;
         this.previousPrice = initialPrice;
         this.lastUpdated = timestamp != null ? timestamp : Instant.now();
+    }
+
+    public void updatePrice(BigDecimal newPrice) {
+        updatePrice(newPrice, Instant.now());
     }
 
     public void updatePrice(BigDecimal newPrice, Instant updateTime) {

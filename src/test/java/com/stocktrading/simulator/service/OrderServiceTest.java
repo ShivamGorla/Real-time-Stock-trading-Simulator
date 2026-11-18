@@ -55,18 +55,31 @@ class OrderServiceTest {
     private UserRepository userRepository;
 
     @Autowired
+    private com.stocktrading.simulator.repository.WalletRepository walletRepository;
+
+    @Autowired
+    private com.stocktrading.simulator.repository.WalletTransactionRepository walletTransactionRepository;
+
+    @Autowired
+    private com.stocktrading.simulator.repository.HoldingRepository holdingRepository;
+
+    @Autowired
     private StockService stockService;
 
     private User testUser1;
     private User testUser2;
     private Stock testStock;
 
+    @org.junit.jupiter.api.AfterEach
     @BeforeEach
     void setup() {
         tradeRepository.deleteAll();
         orderRepository.deleteAll();
+        holdingRepository.deleteAll();
         historyRepository.deleteAll();
         stockRepository.deleteAll();
+        walletTransactionRepository.deleteAll();
+        walletRepository.deleteAll();
         userRepository.deleteAll();
 
         testUser1 = userRepository.save(new User("User One", "userone", "one@example.com", "hash1"));

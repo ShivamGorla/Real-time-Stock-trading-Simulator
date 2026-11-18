@@ -44,6 +44,15 @@ class OrderAutoExecutionTest {
     private UserRepository userRepository;
 
     @Autowired
+    private WalletTransactionRepository walletTransactionRepository;
+
+    @Autowired
+    private WalletRepository walletRepository;
+
+    @Autowired
+    private HoldingRepository holdingRepository;
+
+    @Autowired
     private StockService stockService;
 
     @MockBean
@@ -55,10 +64,14 @@ class OrderAutoExecutionTest {
     private User testUser;
     private Stock testStock;
 
+    @org.junit.jupiter.api.AfterEach
     @BeforeEach
     void setup() {
         tradeRepository.deleteAll();
         orderRepository.deleteAll();
+        walletTransactionRepository.deleteAll();
+        walletRepository.deleteAll();
+        holdingRepository.deleteAll();
         historyRepository.deleteAll();
         stockRepository.deleteAll();
         userRepository.deleteAll();
@@ -95,6 +108,7 @@ class OrderAutoExecutionTest {
                 eq(testUser.getId()),
                 eq("TCS"),
                 eq(10),
+                eq(new BigDecimal("3500.00")),
                 eq(response.getId())
         );
 
@@ -122,6 +136,7 @@ class OrderAutoExecutionTest {
                 eq(testUser.getId()),
                 eq("TCS"),
                 eq(5),
+                eq(new BigDecimal("3500.00")),
                 eq(response.getId())
         );
 
@@ -156,14 +171,14 @@ class OrderAutoExecutionTest {
         assertNull(savedOrder.getExecutedAt());
 
         // Verify no shares were added and zero trades created
-        verify(holdingsPort, never()).addShares(anyLong(), anyString(), anyInt(), anyLong());
+        verify(holdingsPort, never()).addShares(anyLong(), anyString(), anyInt(), any(BigDecimal.class), anyLong());
         assertEquals(0, tradeRepository.count());
     }
 
     @Test
     void createSellOrder_WhenInsufficientShares_ThrowsExceptionAndRollsBackSettlement() {
         doThrow(new InsufficientSharesException("Insufficient shares owned"))
-                .when(holdingsPort).deductAvailableShares(anyLong(), anyString(), anyInt(), anyLong());
+                .when(holdingsPort).deductAvailableShares(anyLong(), anyString(), anyInt(), any(BigDecimal.class), anyLong());
 
         String clientOrderId = UUID.randomUUID().toString();
         OrderRequest request = new OrderRequest(clientOrderId, "TCS", 50);
@@ -196,7 +211,7 @@ class OrderAutoExecutionTest {
 
         // Verify wallet debited only ONCE
         verify(walletPort, times(1)).debitSufficientFunds(anyLong(), any(BigDecimal.class), anyLong(), anyString());
-        verify(holdingsPort, times(1)).addShares(anyLong(), anyString(), anyInt(), anyLong());
+        verify(holdingsPort, times(1)).addShares(anyLong(), anyString(), anyInt(), any(BigDecimal.class), anyLong());
 
         // Exactly one trade created
         assertEquals(1, tradeRepository.count());
