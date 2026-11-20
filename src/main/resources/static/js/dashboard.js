@@ -28,7 +28,10 @@ document.addEventListener('DOMContentLoaded', function () {
         searchRequestId: 0,
         searchDebounceTimer: null,
         isMock: false,
-        historyIsMock: false
+        historyIsMock: false,
+        orderSide: 'BUY',
+        orderQuantity: 1,
+        availableCash: 100000.00
     };
 
     var els = {
@@ -66,7 +69,29 @@ document.addEventListener('DOMContentLoaded', function () {
         chartRangeLabel: document.getElementById('chart-range-label'),
         chartPointsCount: document.getElementById('chart-points-count'),
 
-        timeframePills: document.querySelectorAll('.timeframe-pill')
+        timeframePills: document.querySelectorAll('.timeframe-pill'),
+
+        ticketSymbol: document.getElementById('ticket-stock-symbol'),
+        ticketName: document.getElementById('ticket-stock-name'),
+        ticketPrice: document.getElementById('ticket-stock-price'),
+        ticketTabBuy: document.getElementById('ticket-tab-buy'),
+        ticketTabSell: document.getElementById('ticket-tab-sell'),
+        ticketQty: document.getElementById('ticket-qty'),
+        ticketQtyDec: document.getElementById('ticket-qty-dec'),
+        ticketQtyInc: document.getElementById('ticket-qty-inc'),
+        ticketUnitPrice: document.getElementById('ticket-unit-price'),
+        ticketEstimatedTotal: document.getElementById('ticket-estimated-total'),
+        ticketAvailableCash: document.getElementById('ticket-available-cash'),
+        ticketInsufficientWarning: document.getElementById('ticket-insufficient-warning'),
+        ticketSubmitBtn: document.getElementById('ticket-submit-btn'),
+        ticketSubmitText: document.getElementById('ticket-submit-text'),
+        ticketFeedback: document.getElementById('ticket-feedback'),
+        ticketFeedbackMsg: document.getElementById('ticket-feedback-msg'),
+
+        holdingsTbody: document.getElementById('holdings-tbody'),
+        holdingsEmpty: document.getElementById('holdings-empty'),
+        tradesTbody: document.getElementById('trades-tbody'),
+        tradesEmpty: document.getElementById('trades-empty')
     };
 
     function cssVar(name) {
@@ -393,6 +418,101 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         loadStockHistory(symbol);
+        updateOrderTicket();
+    }
+
+    /* ---------- Order Ticket & Estimation (Milestone 3) ---------- */
+
+    function updateOrderTicket() {
+        var stock = state.stocks.find(function (item) {
+            return item.symbol === state.selectedSymbol;
+        });
+
+        var unitPrice = stock ? Number(stock.currentPrice) || 0 : 0;
+        var sym = stock ? stock.symbol : state.selectedSymbol;
+        var name = stock ? stock.companyName : '';
+
+        if (els.ticketSymbol) els.ticketSymbol.textContent = sym;
+        if (els.ticketName) els.ticketName.textContent = name;
+        if (els.ticketPrice) els.ticketPrice.textContent = formatINR(unitPrice);
+        if (els.ticketUnitPrice) els.ticketUnitPrice.textContent = formatINR(unitPrice);
+
+        var rawQty = els.ticketQty ? Number(els.ticketQty.value) : 1;
+        var qty = Math.max(1, Math.min(10000, Math.floor(rawQty) || 1));
+        state.orderQuantity = qty;
+
+        var estimatedTotal = unitPrice * qty;
+
+        if (els.ticketEstimatedTotal) {
+            els.ticketEstimatedTotal.textContent = formatINR(estimatedTotal);
+        }
+
+        if (els.ticketAvailableCash) {
+            els.ticketAvailableCash.textContent = formatINR(state.availableCash);
+        }
+
+        /* Check cash sufficiency for BUY orders (does not block, displays warning) */
+        if (els.ticketInsufficientWarning) {
+            if (state.orderSide === 'BUY' && estimatedTotal > state.availableCash) {
+                els.ticketInsufficientWarning.hidden = false;
+            } else {
+                els.ticketInsufficientWarning.hidden = true;
+            }
+        }
+
+        /* Dynamic button label and action style */
+        if (els.ticketSubmitText) {
+            els.ticketSubmitText.textContent = state.orderSide === 'BUY'
+                ? 'Place Buy Order'
+                : 'Place Sell Order';
+        }
+
+        if (els.ticketSubmitBtn) {
+            els.ticketSubmitBtn.className = 'btn btn-block ' +
+                (state.orderSide === 'BUY' ? 'btn-buy' : 'btn-sell');
+        }
+    }
+
+    function handleTicketTab(side) {
+        state.orderSide = side;
+
+        if (els.ticketTabBuy) {
+            els.ticketTabBuy.classList.toggle('is-active', side === 'BUY');
+            els.ticketTabBuy.setAttribute('aria-selected', String(side === 'BUY'));
+        }
+
+        if (els.ticketTabSell) {
+            els.ticketTabSell.classList.toggle('is-active', side === 'SELL');
+            els.ticketTabSell.setAttribute('aria-selected', String(side === 'SELL'));
+        }
+
+        if (els.ticketFeedback) {
+            els.ticketFeedback.hidden = true;
+        }
+
+        updateOrderTicket();
+    }
+
+    function handleQuantityStep(delta) {
+        if (!els.ticketQty) return;
+
+        var current = Math.floor(Number(els.ticketQty.value) || 1);
+        var next = Math.max(1, Math.min(10000, current + delta));
+
+        els.ticketQty.value = next;
+        updateOrderTicket();
+    }
+
+    function handleOrderSubmit() {
+        if (!els.ticketFeedback) return;
+
+        /* Honest unavailable message: Order execution engine is not connected on this branch.
+           Strictly: No fake order requests, no synthetic balance deductions, no mock transactions. */
+        els.ticketFeedback.hidden = false;
+        if (els.ticketFeedbackMsg) {
+            els.ticketFeedbackMsg.textContent =
+                'The backend trading engine is not connected on this branch. Orders cannot be submitted or settled at this time.';
+        }
     }
 
     /* ---------- Chart Timeframe ---------- */
@@ -733,6 +853,46 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
+        /* Order Ticket event listeners (Milestone 3) */
+        if (els.ticketTabBuy) {
+            els.ticketTabBuy.addEventListener('click', function () {
+                handleTicketTab('BUY');
+            });
+        }
+
+        if (els.ticketTabSell) {
+            els.ticketTabSell.addEventListener('click', function () {
+                handleTicketTab('SELL');
+            });
+        }
+
+        if (els.ticketQtyDec) {
+            els.ticketQtyDec.addEventListener('click', function () {
+                handleQuantityStep(-1);
+            });
+        }
+
+        if (els.ticketQtyInc) {
+            els.ticketQtyInc.addEventListener('click', function () {
+                handleQuantityStep(1);
+            });
+        }
+
+        if (els.ticketQty) {
+            els.ticketQty.addEventListener('input', function () {
+                updateOrderTicket();
+            });
+            els.ticketQty.addEventListener('change', function () {
+                var v = Math.max(1, Math.min(10000, Math.floor(Number(els.ticketQty.value) || 1)));
+                els.ticketQty.value = v;
+                updateOrderTicket();
+            });
+        }
+
+        if (els.ticketSubmitBtn) {
+            els.ticketSubmitBtn.addEventListener('click', handleOrderSubmit);
+        }
+
         document.addEventListener('themechange', function () {
             if (state.rawHistory.length > 0) {
                 renderChart(state.rawHistory, state.selectedTimeframe);
@@ -752,6 +912,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (!api) {
                 throw new Error('StockSim API client is unavailable.');
+            }
+
+            /* Read user profile virtual balance if available */
+            try {
+                if (typeof api.getUserProfile === 'function') {
+                    var profile = await api.getUserProfile();
+                    if (profile && profile.virtualBalance != null) {
+                        var parsedBalance = Number(profile.virtualBalance);
+                        if (Number.isFinite(parsedBalance) && parsedBalance >= 0) {
+                            state.availableCash = parsedBalance;
+                        }
+                        if (els.ticketAvailableCash) {
+                            els.ticketAvailableCash.textContent = formatINR(state.availableCash);
+                        }
+                    }
+                }
+            } catch (profileErr) {
+                /* Defaults / auth.js already managing the balance display */
             }
 
             var overviewResponse = await api.getMarketOverview();
